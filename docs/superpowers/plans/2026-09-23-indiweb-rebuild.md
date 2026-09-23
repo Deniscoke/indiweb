@@ -1422,8 +1422,8 @@ MSG
 
 **Files:**
 - Modify (replace): `app/globals.css`, `app/layout.tsx`
-- Create: `lib/cn.ts`, `lib/use-reduced-motion.ts`, `components/ui/container.tsx`, `components/ui/button-link.tsx`, `components/ui/section-heading.tsx`, `components/ui/reveal.tsx`, `components/ui/browser-frame.tsx`
-- Test: `lib/cn.test.ts`, `lib/use-reduced-motion.test.tsx`, `components/ui/button-link.test.tsx`, `components/ui/reveal.test.tsx`, `components/ui/section-heading.test.tsx`
+- Create: `lib/cn.ts`, `lib/use-reduced-motion.ts`, `components/ui/container.tsx`, `components/ui/button-link.tsx`, `components/ui/section-heading.tsx`, `components/ui/reveal.tsx`, `components/ui/browser-frame.tsx`, `components/ui/bullet-list.tsx`, `components/ui/tag-list.tsx`, `components/ui/step-list.tsx`
+- Test: `lib/cn.test.ts`, `lib/use-reduced-motion.test.tsx`, `components/ui/button-link.test.tsx`, `components/ui/reveal.test.tsx`, `components/ui/section-heading.test.tsx`, `components/ui/lists.test.tsx`
 
 **Interfaces:**
 - Consumes: `site` (Task 2).
@@ -1435,6 +1435,9 @@ MSG
   - `<SectionHeading id eyebrow title lead? align?: 'left' | 'center'>` — renderuje `<h2 id={id}>`
   - `<Reveal className? delay?: number children>` — trieda `reveal`, po zobrazení `is-visible`
   - `<BrowserFrame url? className? children>`
+  - `<BulletList items: string[] className?>` — `<ul>` s bodkou pred každou položkou (služby, Aria, detail projektu)
+  - `<TagList tags: string[] className?>` — `<ul aria-label="Štítky">` so štítkami (karta aj detail projektu)
+  - `<StepList steps: Step[] className?>` — `<ol>` očíslovaných kariet s `<h3>` (postup spolupráce, nasadenie Arie)
   - CSS triedy `ambient-glow`, `ambient-grain`, `reveal`, `is-visible`; tokeny farieb a `font-display`
 
 - [ ] **Step 1: Napíš padajúce testy**
@@ -1570,6 +1573,48 @@ it('renders the eyebrow, an h2 with the given id and the lead', () => {
   expect(heading.id).toBe('sluzby-nadpis')
   expect(screen.getByText('Co děláme')).toBeTruthy()
   expect(screen.getByText('Úvod')).toBeTruthy()
+})
+```
+
+`components/ui/lists.test.tsx`:
+
+```tsx
+// @vitest-environment jsdom
+import { render, screen, within } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import { BulletList } from '@/components/ui/bullet-list'
+import { StepList } from '@/components/ui/step-list'
+import { TagList } from '@/components/ui/tag-list'
+
+describe('BulletList', () => {
+  it('renders one list item per entry', () => {
+    render(<BulletList items={['Rezervace', 'E-shop']} />)
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Rezervace', 'E-shop'])
+  })
+})
+
+describe('TagList', () => {
+  it('renders a labelled list of tags', () => {
+    render(<TagList tags={['Web', 'B2B']} />)
+    const list = screen.getByRole('list', { name: 'Štítky' })
+    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Web', 'B2B'])
+  })
+})
+
+describe('StepList', () => {
+  it('renders an ordered list with a heading per step', () => {
+    const steps = [
+      { title: 'Poptávka', text: 'Napíšete nám.' },
+      { title: 'Návrh', text: 'Navrhneme řešení.' },
+    ]
+    const { container } = render(<StepList steps={steps} />)
+    expect(container.querySelector('ol')).not.toBeNull()
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'Poptávka',
+      'Návrh',
+    ])
+    expect(screen.getByText('Navrhneme řešení.')).toBeTruthy()
+  })
 })
 ```
 
@@ -1807,6 +1852,71 @@ export function BrowserFrame({ children, url, className }: BrowserFrameProps) {
       </div>
       {children}
     </div>
+  )
+}
+```
+
+`components/ui/bullet-list.tsx`:
+
+```tsx
+import { cn } from '@/lib/cn'
+
+export function BulletList({ items, className }: { items: string[]; className?: string }) {
+  return (
+    <ul className={cn('space-y-3', className)}>
+      {items.map((item) => (
+        <li key={item} className="flex gap-3">
+          <span aria-hidden="true" className="mt-[0.6em] size-1.5 shrink-0 rounded-full bg-accent" />
+          {item}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+`components/ui/tag-list.tsx`:
+
+```tsx
+import { cn } from '@/lib/cn'
+
+export function TagList({ tags, className }: { tags: string[]; className?: string }) {
+  return (
+    <ul aria-label="Štítky" className={cn('flex flex-wrap gap-2', className)}>
+      {tags.map((tag) => (
+        <li key={tag} className="rounded-full border border-line px-3 py-1 text-xs text-fg-dim">
+          {tag}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+`components/ui/step-list.tsx`:
+
+```tsx
+import type { Step } from '@/content/types'
+import { cn } from '@/lib/cn'
+import { Reveal } from './reveal'
+
+export function StepList({ steps, className }: { steps: Step[]; className?: string }) {
+  return (
+    <ol className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-4', className)}>
+      {steps.map((step, index) => (
+        <li key={step.title}>
+          <Reveal delay={index * 100} className="h-full">
+            <div className="h-full rounded-3xl border border-line bg-surface p-7">
+              <p aria-hidden="true" className="font-display text-sm text-accent">
+                {String(index + 1).padStart(2, '0')}
+              </p>
+              <h3 className="mt-4 font-display text-xl font-semibold">{step.title}</h3>
+              <p className="mt-2 text-sm text-fg-dim">{step.text}</p>
+            </div>
+          </Reveal>
+        </li>
+      ))}
+    </ol>
   )
 }
 ```
@@ -2320,7 +2430,7 @@ MSG
 - Test: `components/home/rotating-word.test.tsx`, `components/home/hero.test.tsx`, `components/home/services.test.tsx`, `components/home/aria-teaser.test.tsx`
 
 **Interfaces:**
-- Consumes: `hero`, `media` (Task 2), `services` (Task 2), `aria` (Task 2), `useReducedMotion`, `Container`, `ButtonLink`, `SectionHeading`, `Reveal`, `cn` (Task 6).
+- Consumes: `hero`, `media` (Task 2), `services` (Task 2), `aria` (Task 2), `useReducedMotion`, `Container`, `ButtonLink`, `SectionHeading`, `Reveal`, `BulletList` (Task 6).
 - Produces: `<RotatingWord words interval?>` (animované slovo má atribút `data-rotating-word`), `<Hero />`, `<Services />` (`#sluzby`), `<AriaTeaser />` (`#aria`).
 
 - [ ] **Step 1: Napíš padajúce testy**
@@ -2534,25 +2644,12 @@ export function Hero() {
 
 ```tsx
 import Image from 'next/image'
+import { BulletList } from '@/components/ui/bullet-list'
 import { Container } from '@/components/ui/container'
 import { Reveal } from '@/components/ui/reveal'
 import { SectionHeading } from '@/components/ui/section-heading'
 import { services } from '@/content/services'
 import { media } from '@/content/site'
-import { cn } from '@/lib/cn'
-
-function PointList({ points, className }: { points: string[]; className?: string }) {
-  return (
-    <ul className={cn('space-y-3 text-sm text-fg-dim', className)}>
-      {points.map((point) => (
-        <li key={point} className="flex gap-3">
-          <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
-          {point}
-        </li>
-      ))}
-    </ul>
-  )
-}
 
 export function Services() {
   const featured = services.find((service) => service.featured)
@@ -2577,7 +2674,7 @@ export function Services() {
                   {featured.title}
                 </h3>
                 <p className="mt-4 text-fg-dim">{featured.summary}</p>
-                <PointList points={featured.points} className="mt-8" />
+                <BulletList items={featured.points} className="mt-8 text-sm text-fg-dim" />
               </div>
               <div className="relative min-h-64 lg:min-h-full">
                 <Image
@@ -2599,7 +2696,7 @@ export function Services() {
                 <article className="flex h-full flex-col rounded-3xl border border-line bg-surface p-8">
                   <h3 className="font-display text-2xl font-semibold tracking-tight">{service.title}</h3>
                   <p className="mt-3 text-fg-dim">{service.summary}</p>
-                  <PointList points={service.points} className="mt-6" />
+                  <BulletList items={service.points} className="mt-6 text-sm text-fg-dim" />
                 </article>
               </Reveal>
             </li>
@@ -2615,6 +2712,7 @@ export function Services() {
 
 ```tsx
 import Image from 'next/image'
+import { BulletList } from '@/components/ui/bullet-list'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
 import { Reveal } from '@/components/ui/reveal'
@@ -2637,14 +2735,7 @@ export function AriaTeaser() {
                   {aria.headline}
                 </h2>
                 <p className="mt-5 text-lg text-fg-dim">{aria.description}</p>
-                <ul className="mt-8 space-y-3 text-sm">
-                  {aria.capabilities.slice(0, 3).map((capability) => (
-                    <li key={capability} className="flex gap-3">
-                      <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
-                      {capability}
-                    </li>
-                  ))}
-                </ul>
+                <BulletList items={aria.capabilities.slice(0, 3)} className="mt-8 text-sm" />
                 <div className="mt-10 flex flex-col gap-3 sm:flex-row">
                   <ButtonLink href="/aria" withArrow>
                     Více o Arii
@@ -2717,7 +2808,7 @@ MSG
 - Test: `components/home/project-card.test.tsx`, `components/home/process.test.tsx`, `components/home/team-card.test.tsx`
 
 **Interfaces:**
-- Consumes: `projects`, `PROJECT_IMAGE_SIZE`, `processSteps`, `team` (Task 2); `MARKET_LABELS` (Task 2); `BrowserFrame`, `Container`, `SectionHeading`, `Reveal`, `cn` (Task 6).
+- Consumes: `projects`, `PROJECT_IMAGE_SIZE`, `processSteps`, `team` (Task 2); `MARKET_LABELS` (Task 2); `BrowserFrame`, `Container`, `SectionHeading`, `Reveal`, `TagList`, `StepList`, `cn` (Task 6).
 - Produces: `<ProjectCard project>`, `<Projects />` (`#projekty`), `<Process />` (`#postup`), `<TeamCard member>`, `getInitials(name: string): string`, `<Team />` (`#o-nas`).
 
 - [ ] **Step 1: Napíš padajúce testy**
@@ -2832,6 +2923,7 @@ Expected: FAIL — chýbajúce moduly `project-card`, `process`, `team-card`.
 import Image from 'next/image'
 import Link from 'next/link'
 import { BrowserFrame } from '@/components/ui/browser-frame'
+import { TagList } from '@/components/ui/tag-list'
 import { PROJECT_IMAGE_SIZE } from '@/content/projects'
 import type { Project } from '@/content/types'
 import { MARKET_LABELS } from '@/lib/projects'
@@ -2864,13 +2956,7 @@ export function ProjectCard({ project }: { project: Project }) {
           </Link>
         </h3>
         <p className="mt-2 text-fg-dim">{project.summary}</p>
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <li key={tag} className="rounded-full border border-line px-3 py-1 text-xs text-fg-dim">
-              {tag}
-            </li>
-          ))}
-        </ul>
+        <TagList tags={project.tags} className="mt-4" />
         <a
           href={project.liveUrl}
           target="_blank"
@@ -2926,8 +3012,8 @@ export function Projects() {
 
 ```tsx
 import { Container } from '@/components/ui/container'
-import { Reveal } from '@/components/ui/reveal'
 import { SectionHeading } from '@/components/ui/section-heading'
+import { StepList } from '@/components/ui/step-list'
 import { processSteps } from '@/content/process'
 
 export function Process() {
@@ -2939,21 +3025,7 @@ export function Process() {
           eyebrow="Jak pracujeme"
           title="Od první zprávy po spuštění ve čtyřech krocích."
         />
-        <ol className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {processSteps.map((step, index) => (
-            <li key={step.title}>
-              <Reveal delay={index * 100} className="h-full">
-                <div className="h-full rounded-3xl border border-line bg-surface p-7">
-                  <p aria-hidden="true" className="font-display text-sm text-accent">
-                    {String(index + 1).padStart(2, '0')}
-                  </p>
-                  <h3 className="mt-4 font-display text-xl font-semibold">{step.title}</h3>
-                  <p className="mt-2 text-sm text-fg-dim">{step.text}</p>
-                </div>
-              </Reveal>
-            </li>
-          ))}
-        </ol>
+        <StepList steps={processSteps} className="mt-14" />
       </Container>
     </section>
   )
@@ -3547,7 +3619,7 @@ MSG
 - Test: `components/aria/aria-page.test.tsx`
 
 **Interfaces:**
-- Consumes: `aria`, `media` (Task 2); `ButtonLink`, `Container`, `SectionHeading`, `Reveal` (Task 6).
+- Consumes: `aria`, `media` (Task 2); `ButtonLink`, `Container`, `SectionHeading`, `Reveal`, `StepList` (Task 6).
 - Produces: `<AriaPage />`; route `/aria` s `metadata.title = 'Aria — AI hlasový agent'`.
 
 - [ ] **Step 1: Napíš padajúci test**
@@ -3601,6 +3673,7 @@ import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
 import { Reveal } from '@/components/ui/reveal'
 import { SectionHeading } from '@/components/ui/section-heading'
+import { StepList } from '@/components/ui/step-list'
 import { aria } from '@/content/aria'
 import { media } from '@/content/site'
 
@@ -3674,21 +3747,7 @@ export function AriaPage() {
       <section aria-labelledby="aria-nasazeni" className="py-24">
         <Container>
           <SectionHeading id="aria-nasazeni" eyebrow="Nasazení" title="Jak Ariu spustíme u vás." />
-          <ol className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {aria.rollout.map((step, index) => (
-              <li key={step.title}>
-                <Reveal delay={index * 100} className="h-full">
-                  <div className="h-full rounded-3xl border border-line bg-surface p-7">
-                    <p aria-hidden="true" className="font-display text-sm text-accent">
-                      {String(index + 1).padStart(2, '0')}
-                    </p>
-                    <h3 className="mt-4 font-display text-xl font-semibold">{step.title}</h3>
-                    <p className="mt-2 text-sm text-fg-dim">{step.text}</p>
-                  </div>
-                </Reveal>
-              </li>
-            ))}
-          </ol>
+          <StepList steps={aria.rollout} className="mt-12" />
         </Container>
       </section>
 
@@ -3758,7 +3817,7 @@ MSG
 - Test: `components/project/project-detail.test.tsx`
 
 **Interfaces:**
-- Consumes: `projects`, `PROJECT_IMAGE_SIZE` (Task 2); `getProject`, `getNextProject`, `MARKET_LABELS` (Task 2); `BrowserFrame`, `ButtonLink`, `Container` (Task 6).
+- Consumes: `projects`, `PROJECT_IMAGE_SIZE` (Task 2); `getProject`, `getNextProject`, `MARKET_LABELS` (Task 2); `BrowserFrame`, `ButtonLink`, `Container`, `BulletList`, `TagList` (Task 6).
 - Produces: `<ProjectDetail project next?>`; statické routes `/projekty/elevator-servis`, `/projekty/esencia-viva`; neznámy slug → 404.
 
 - [ ] **Step 1: Napíš padajúci test**
@@ -3812,8 +3871,10 @@ Expected: FAIL — chýbajúci modul.
 import Image from 'next/image'
 import Link from 'next/link'
 import { BrowserFrame } from '@/components/ui/browser-frame'
+import { BulletList } from '@/components/ui/bullet-list'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
+import { TagList } from '@/components/ui/tag-list'
 import { PROJECT_IMAGE_SIZE } from '@/content/projects'
 import type { Project } from '@/content/types'
 import { MARKET_LABELS } from '@/lib/projects'
@@ -3867,21 +3928,8 @@ export function ProjectDetail({ project, next }: { project: Project; next?: Proj
             <h2 id="co-web-umi" className="font-display text-2xl font-semibold">
               Co web umí
             </h2>
-            <ul className="mt-4 space-y-3 text-fg-dim">
-              {project.highlights.map((highlight) => (
-                <li key={highlight} className="flex gap-3">
-                  <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 rounded-full bg-accent" />
-                  {highlight}
-                </li>
-              ))}
-            </ul>
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {project.tags.map((tag) => (
-                <li key={tag} className="rounded-full border border-line px-3 py-1 text-xs text-fg-dim">
-                  {tag}
-                </li>
-              ))}
-            </ul>
+            <BulletList items={project.highlights} className="mt-4 text-fg-dim" />
+            <TagList tags={project.tags} className="mt-6" />
           </section>
         </div>
 
