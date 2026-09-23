@@ -91,7 +91,7 @@ type Service = { id: ServiceId; title: string; summary: string; points: string[]
 type TeamMember = { slug: string; name: string; role: string; bio: string; website?: string; photo?: string };
 
 // content/aria.ts
-type Product = { name: string; tagline: string; description: string; url: string; capabilities: string[]; audience: string[] };
+type Product = { name: string; headline: string; tagline: string; description: string; url: string; capabilities: string[]; audience: string[]; rollout: { title: string; text: string }[] };
 
 // content/site.ts — e-mail, názov, popis pre SEO, URL webu
 ```
@@ -127,7 +127,8 @@ CTA z `/aria` vedie na `/?sluzba=ai#kontakt` a formulár podľa parametra predvy
 
 - **Farby:** pozadie takmer čierne (`#08080a` ako doteraz), svetlý text, jedna akcentová farba — chladná indigová (odvodená z existujúcej žiary `rgb(120 130 255)`), použitá striedmo: tlačidlá, zvýraznené slová, focus stavy. Kontrast textu minimálne WCAG AA.
 - **Písmo:** Inter na bežný text; výraznejšie display písmo na nadpisy. Podmienka výberu: úplná podpora češtiny (`latin-ext`: ě š č ř ž ý á í é ů ú). Načítanie cez `next/font`.
-- **Portfólio:** screenshoty v rámčeku zariadenia; znovupoužité súčasné fotky MacBooku/telefónu, kde sa hodia. Všetky obrázky cez `next/image` (WebP/AVIF, lazy loading).
+- **Portfólio:** screenshoty projektov v CSS rámčeku okna prehliadača. Súčasné fotky: `macbook.png` → vizuál karty Weby, `phone.png` → vizuál sekcie Aria (telefón = hovory), `tablet.png` sa vypúšťa (biele pozadie, rozmazané okraje). Všetky obrázky cez `next/image` (WebP/AVIF, lazy loading), zdrojové súbory skonvertované do WebP.
+- **Písmo nadpisov:** Bricolage Grotesque (overená podpora `latin-ext` v `next/font`).
 - **Pohyb:** jemné odhalenie sekcií pri scrollovaní, rotujúce slovo v hero (prevzaté zo súčasného webu). Pri `prefers-reduced-motion` všetko statické.
 - **Responzivita:** mobil (od 360 px) → desktop; žiadny horizontálny scroll.
 - **Prístupnosť:** sémantické nadpisy, `alt` texty, viditeľný focus, polia formulára s `label`.
@@ -146,7 +147,9 @@ app/
   actions/send-inquiry.ts     Server Action
 components/                   sekcie a UI prvky (jeden komponent = jedna zodpovednosť)
 content/                      obsah (sekcia 6)
-lib/inquiry-schema.ts         zod schéma zdieľaná klientom aj serverom
+lib/inquiry-options.ts        voľby služieb, typy stavu formulára (bez zod — importuje ho klient)
+lib/inquiry-schema.ts         zod schéma a parseInquiry (server)
+lib/inquiry-email.ts          zostavenie notifikačného e-mailu
 public/projects/              screenshoty projektov
 ```
 
@@ -164,7 +167,7 @@ Všetky stránky sú statické (generované pri builde); dynamická je iba Serve
 
 ## 11. Nasadenie
 
-1. Vo Verceli: *Settings → Build and Deployment → Framework Preset* = **Next.js**, Root Directory prázdne.
+1. `vercel.json` v repe s `"framework": "nextjs"` prepíše framework preset projektu (overené v dokumentácii Vercelu), takže ručná zmena v nastaveniach nie je potrebná. Root Directory ostáva prázdne.
 2. Tím založí Resend účet na `info.indiweb@gmail.com` a vloží `RESEND_API_KEY` do Vercel env.
 3. Push do `main` → automatický deploy.
 4. Neskôr: doména `indiweb.cz` → tento Vercel projekt; `aria.indiweb.cz` → Vercel projekt Arie; zmena URL v `content/aria.ts` a `content/site.ts`.
