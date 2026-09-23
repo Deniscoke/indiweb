@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, Inter } from 'next/font/google'
 import type { ReactNode } from 'react'
+import { Footer } from '@/components/layout/footer'
+import { Header } from '@/components/layout/header'
 import { site } from '@/content/site'
 import './globals.css'
 
@@ -43,9 +45,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Přeskočit na obsah
         </a>
+        <Header />
         <main id="obsah" className="relative z-10">
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   )
