@@ -19,8 +19,8 @@ describe('site', () => {
     for (const item of navigation) expect(item.href).toMatch(/^\/#[a-z-]+$/)
   })
 
-  it('rotates at least two hero words', () => {
-    expect(hero.rotatingWords.length).toBeGreaterThanOrEqual(2)
+  it('spreads three short lines across the hero', () => {
+    expect(hero.lines).toHaveLength(3)
   })
 })
 

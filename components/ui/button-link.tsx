@@ -15,11 +15,14 @@ const BASE =
   'inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors duration-300'
 
 const VARIANTS = {
-  primary: 'bg-accent text-bg hover:bg-accent-strong',
+  // A pill of light: bone white with a pink-violet glow on hover.
+  primary:
+    'bg-fg text-bg hover:bg-white hover:shadow-[0_0_36px_4px_rgb(217_184_255/0.4)] transition-shadow',
   ghost: 'border border-line-strong text-fg hover:border-fg-faint hover:bg-surface',
 }
 
 function Arrow({ external }: { external: boolean }) {
+  if (!external) return null
   return (
     <svg
       aria-hidden="true"
@@ -49,7 +52,8 @@ export function ButtonLink({
   const content = (
     <>
       {children}
-      {withArrow && <Arrow external={external} />}
+      {/* The arrow only marks links that leave the site. */}
+      {withArrow && external && <Arrow external />}
     </>
   )
 

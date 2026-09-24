@@ -1,25 +1,23 @@
 import { Container } from '@/components/ui/container'
-import { Reveal } from '@/components/ui/reveal'
 import { SectionHeading } from '@/components/ui/section-heading'
 import { projects } from '@/content/projects'
+import { cn } from '@/lib/cn'
 import { ProjectCard } from './project-card'
 
 export function Projects() {
   return (
-    <section id="projekty" aria-labelledby="projekty-nadpis" className="py-24 sm:py-32">
+    <section id="projekty" aria-labelledby="projekty-nadpis" className="py-28 sm:py-40">
       <Container>
         <SectionHeading
           id="projekty-nadpis"
-          eyebrow="Projekty"
           title="Každý klient dostane web, který sedí jemu. Ne šabloně."
           lead="Výtahová firma potřebuje něco jiného než terapeutka. Podívejte se, jak to vypadá v praxi."
         />
-        <ul className="mt-14 grid gap-14 md:grid-cols-2 md:gap-10">
+        <ul className="mt-20 grid gap-20 md:grid-cols-2 md:gap-12">
           {projects.map((project, index) => (
-            <li key={project.slug}>
-              <Reveal delay={index * 120}>
-                <ProjectCard project={project} />
-              </Reveal>
+            // Every other project steps down for an editorial rhythm.
+            <li key={project.slug} className={cn(index % 2 === 1 && 'md:mt-40')}>
+              <ProjectCard project={project} />
             </li>
           ))}
         </ul>

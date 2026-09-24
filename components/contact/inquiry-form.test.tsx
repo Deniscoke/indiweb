@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 const { sendInquiryMock, searchParamsMock } = vi.hoisted(() => ({
@@ -96,8 +96,9 @@ describe('InquiryForm', () => {
     fillValid()
     submit()
 
+    // Focus moves in an effect after the message renders, so wait for it.
     const status = await screen.findByRole('status')
-    expect(document.activeElement).toBe(status)
+    await waitFor(() => expect(document.activeElement).toBe(status))
   })
 
   it('focuses the first invalid field, in name/email/service/message order', async () => {
@@ -110,7 +111,7 @@ describe('InquiryForm', () => {
     submit()
 
     await screen.findByText('Zadejte platný e-mail.')
-    expect(document.activeElement).toBe(input('E-mail'))
+    await waitFor(() => expect(document.activeElement).toBe(input('E-mail')))
   })
 })
 

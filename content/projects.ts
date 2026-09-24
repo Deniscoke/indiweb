@@ -7,7 +7,7 @@ export const projects: Project[] = [
   {
     slug: 'elevator-servis',
     title: 'Elevátor Servis',
-    client: 'Servis výtahů · Banská Bystrica',
+    client: 'Servis výtahů, Banská Bystrica',
     market: 'SK',
     tags: ['Web', 'B2B', 'Služby'],
     summary:

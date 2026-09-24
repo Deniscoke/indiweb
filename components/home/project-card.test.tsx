@@ -25,5 +25,11 @@ it('shows the screenshot, host, client and market', () => {
   render(<ProjectCard project={project} />)
   expect(screen.getByAltText(`Úvodní obrazovka webu ${project.title}`)).toBeTruthy()
   expect(screen.getByText('elevatorservis.sk')).toBeTruthy()
-  expect(screen.getByText('Servis výtahů · Banská Bystrica · Slovensko')).toBeTruthy()
+  expect(screen.getByText('Servis výtahů, Banská Bystrica')).toBeTruthy()
+  expect(screen.getByText('Slovensko')).toBeTruthy()
+})
+
+it('shows the screenshot in black and white until hovered', () => {
+  render(<ProjectCard project={project} />)
+  expect(screen.getByAltText(`Úvodní obrazovka webu ${project.title}`).getAttribute('class')).toContain('grayscale')
 })

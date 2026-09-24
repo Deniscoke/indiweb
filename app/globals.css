@@ -1,38 +1,33 @@
 @import "tailwindcss";
 
+/* "Svetlo, ktoré tvorí": pure black like the intro, bone-white type, and one
+   accent taken from the pink-violet refraction on the intro's glass rim. */
 @theme {
-  --color-bg: #08080a;
-  --color-bg-soft: #0e0e11;
-  --color-fg: #f4f4f6;
-  --color-fg-dim: #a0a0aa;
-  --color-fg-faint: #85858f;
-  --color-accent: #8b92ff;
-  --color-accent-strong: #a9aeff;
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-strong: rgb(255 255 255 / 0.16);
-  --color-surface: rgb(255 255 255 / 0.03);
-  --color-danger: #ff8a8a;
-  --color-success: #7ee2b8;
-
-  --animate-word-in: word-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-
-  @keyframes word-in {
-    from {
-      opacity: 0;
-      transform: translateY(0.35em);
-      filter: blur(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
-  }
+  --color-bg: #000000;
+  --color-bg-soft: #0c0b0e;
+  --color-fg: #ecebf0;
+  --color-fg-dim: #a19ea9;
+  --color-fg-faint: #7d7a85;
+  --color-accent: #d9b8ff;
+  --color-accent-strong: #ecdcff;
+  --color-line: rgb(236 235 240 / 0.1);
+  --color-line-strong: rgb(236 235 240 / 0.2);
+  --color-surface: rgb(236 235 240 / 0.04);
+  --color-danger: #ff9f9f;
+  --color-success: #b9f0d6;
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-bricolage), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, monospace;
+}
+
+/* Animatable progress of the light sweep that reveals headings. */
+@property --reveal {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
 }
 
 @layer base {
@@ -46,12 +41,12 @@
   }
 
   ::selection {
-    background: rgb(139 146 255 / 0.3);
+    background: rgb(217 184 255 / 0.3);
     color: #ffffff;
   }
 
   :focus-visible {
-    outline: 2px solid #8b92ff;
+    outline: 2px solid #d9b8ff;
     outline-offset: 3px;
   }
 
@@ -62,36 +57,115 @@
 }
 
 @layer components {
-  .ambient-glow {
+  .ambient-grain {
+    position: fixed;
+    inset: -50%;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Soft light that follows the pointer across the whole site (see PointerLight). */
+  .pointer-light {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background:
-      radial-gradient(60% 50% at 50% -10%, rgb(120 130 255 / 0.14), transparent 70%),
-      radial-gradient(50% 40% at 85% 110%, rgb(255 180 120 / 0.06), transparent 70%);
+    background: radial-gradient(
+      520px circle at var(--mx, 50vw) var(--my, 30vh),
+      rgb(236 235 240 / 0.07),
+      rgb(217 184 255 / 0.025) 40%,
+      transparent 70%
+    );
   }
 
-  .ambient-grain {
-    position: fixed;
-    inset: -50%;
-    z-index: 0;
+  /* The hero's light source: a bright core with a wide halo that follows the
+     pointer (page coordinates, the hero starts at the top of the page). */
+  .hero-light {
+    position: absolute;
+    left: var(--mx, 62%);
+    top: var(--py, 34%);
+    width: 44rem;
+    height: 44rem;
+    translate: -50% -50%;
     pointer-events: none;
-    opacity: 0.04;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background: radial-gradient(
+      circle,
+      rgb(255 255 255 / 0.9) 0,
+      rgb(255 255 255 / 0.55) 3%,
+      rgb(236 235 240 / 0.12) 12%,
+      rgb(217 184 255 / 0.06) 30%,
+      transparent 62%
+    );
+    filter: blur(2px);
+    transition: opacity 0.6s ease;
   }
 
+  /* Text lit by the pointer light: bright where the light is, dim elsewhere.
+     The gradient is fixed to the viewport so it tracks the pointer everywhere. */
+  .lit {
+    color: transparent;
+    background: radial-gradient(
+        circle at var(--mx, 50vw) var(--my, 30vh),
+        #ffffff 0,
+        #ecebf0 14vmin,
+        #57545e 46vmin
+      )
+      fixed;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  /* Rows that catch the pointer light as it passes over them. */
+  .row-light {
+    transition: background-color 0.4s ease;
+  }
+
+  .row-light:hover {
+    background: radial-gradient(
+        420px circle at var(--mx, 50vw) var(--my, 50vh),
+        rgb(217 184 255 / 0.09),
+        rgb(236 235 240 / 0.03) 45%,
+        transparent 75%
+      )
+      fixed;
+  }
+
+  /* Headings are revealed by a sweep of light from the top down, echoing the
+     intro wordmark. Reveal adds .is-visible when the heading enters the view. */
   .reveal {
-    opacity: 0;
-    transform: translateY(24px);
-    transition:
-      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    padding-block: 0.08em;
+    mask-image: linear-gradient(
+      to bottom,
+      #000000 calc(var(--reveal) * 130% - 30%),
+      transparent calc(var(--reveal) * 130%)
+    );
+    filter: blur(calc((1 - var(--reveal)) * 6px));
+    transition: --reveal 1.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .reveal.is-visible {
-    opacity: 1;
-    transform: none;
+    --reveal: 1;
+  }
+}
+
+/* Touch screens have no pointer to follow: show text plainly instead. */
+@media (hover: none) {
+  .pointer-light {
+    display: none;
+  }
+
+  /* Without a pointer the hero light rests above the headline. */
+  .hero-light {
+    left: 70%;
+    top: 22%;
+  }
+
+  .lit {
+    color: #ecebf0;
+    background: none;
   }
 }
 
@@ -160,8 +234,7 @@ html[data-intro="play"] body {
   }
 
   .reveal {
-    opacity: 1;
-    transform: none;
+    --reveal: 1;
     transition: none;
   }
 }

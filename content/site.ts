@@ -30,13 +30,11 @@ export const navigation: NavItem[] = [
 export const contactHref = '/#kontakt'
 
 export const hero = {
-  eyebrow: 'Přijímáme nové projekty',
-  titleLead: 'Weby a digitální zážitky,',
-  titleRotatingPrefix: 'které',
-  rotatingWords: ['prodávají', 'zaujmou', 'pracují za vás'],
+  /** Three lines spread across the hero, lit by the pointer. */
+  lines: ['Navrhneme.', 'Postavíme.', 'Rozsvítíme.'],
   subtitle:
-    'Jsme Denis, Adam a Ondra. Navrhujeme weby, 3D vizualizace a AI agenty, kteří za vás zvednou telefon. Na míru, rychle a s AI v každém kroku.',
-  hint: 'Nezávazně · Odpovídáme do 24 hodin',
+    'Weby, 3D vizualizace a AI agenti od Denise, Adama a Ondry. Na míru, rychle a s AI v každém kroku.',
+  hint: 'Odpovídáme do 24 hodin, nezávazně.',
 }
 
 export const media = {

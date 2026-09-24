@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <footer className="relative z-10 border-t border-line">
       <Container className="flex flex-col gap-6 py-10 text-sm text-fg-dim sm:flex-row sm:items-center sm:justify-between">
-        <p>
+        <p className="font-mono text-xs">
           © {year} {site.name}. Tvoříme s péčí.
         </p>
         <nav aria-label="Patička">

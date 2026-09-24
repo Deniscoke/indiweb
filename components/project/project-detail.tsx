@@ -18,8 +18,9 @@ export function ProjectDetail({ project, next }: { project: Project; next?: Proj
         <Link href="/#projekty" className="text-sm text-fg-dim transition-colors hover:text-fg">
           ← Všechny projekty
         </Link>
-        <p className="mt-10 text-xs tracking-[0.18em] text-fg-faint uppercase">
-          {project.client} · {MARKET_LABELS[project.market]}
+        <p className="mt-10 flex flex-wrap gap-x-6 font-mono text-xs text-fg-faint">
+          <span>{project.client}</span>
+          <span>{MARKET_LABELS[project.market]}</span>
         </p>
         <h1 className="mt-3 font-display text-5xl font-semibold tracking-tight sm:text-7xl">
           {project.title}

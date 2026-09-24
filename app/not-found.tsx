@@ -4,7 +4,7 @@ import { Container } from '@/components/ui/container'
 export default function NotFound() {
   return (
     <Container className="flex min-h-[80vh] flex-col items-start justify-center gap-6 pt-32 pb-20">
-      <p className="text-sm tracking-[0.2em] text-fg-faint uppercase">Chyba 404</p>
+      <p className="font-mono text-xs text-fg-faint">Chyba 404</p>
       <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl">
         Tahle stránka neexistuje.
       </h1>

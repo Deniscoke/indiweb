@@ -13,3 +13,8 @@ it('presents Aria as our own product with links to its page and demo', () => {
   expect(demo.getAttribute('href')).toBe(aria.url)
   expect(demo.getAttribute('target')).toBe('_blank')
 })
+
+it('shows the speaking dot grid next to the pitch', () => {
+  const { container } = render(<AriaTeaser />)
+  expect(container.querySelector('canvas[aria-hidden="true"]')).not.toBeNull()
+})

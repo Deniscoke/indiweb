@@ -7,7 +7,7 @@ import { aria } from '@/content/aria'
 it('introduces Aria with its tagline', () => {
   render(<AriaPage />)
   expect(screen.getByRole('heading', { level: 1, name: 'Aria' })).toBeTruthy()
-  expect(screen.getByText(aria.tagline)).toBeTruthy()
+  expect(screen.getByText(aria.tagline, { selector: '.sr-only' })).toBeTruthy()
 })
 
 it('lists capabilities, audience and the rollout steps', () => {

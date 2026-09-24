@@ -22,8 +22,9 @@ import {
   type InquiryService,
 } from '@/lib/inquiry-options'
 
+// Underlined fields on black: the line lights up in the accent when focused.
 const CONTROL =
-  'w-full rounded-xl border bg-bg/60 px-4 py-3 text-fg transition-colors placeholder:text-fg-faint focus:border-accent focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent/40'
+  'w-full border-0 border-b bg-transparent px-0 py-3 text-lg text-fg transition-colors placeholder:text-fg-faint focus:border-accent focus:outline-hidden focus-visible:shadow-[0_1px_0_0_rgb(217_184_255)]'
 
 // Order in which fields are focused when the server action reports validation errors.
 const FIELD_FOCUS_ORDER: InquiryField[] = ['name', 'email', 'service', 'message']
@@ -39,7 +40,7 @@ type FieldProps = {
 function Field({ id, label, optional, error, children }: FieldProps) {
   return (
     <div className="grid gap-2">
-      <label htmlFor={id} className="text-sm text-fg-dim">
+      <label htmlFor={id} className="font-mono text-xs text-fg-dim">
         {label}
         {optional && <span className="text-fg-faint"> (nepovinné)</span>}
       </label>
@@ -138,9 +139,9 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
       action={formAction}
       onSubmit={handleSubmit}
       aria-label="Poptávkový formulář"
-      className="relative grid gap-5"
+      className="relative grid gap-8"
     >
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-8 sm:grid-cols-2">
         <Field id="name" label="Jméno" error={errorOf('name')}>
           <input
             ref={nameRef}
@@ -214,7 +215,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-bg transition-colors hover:bg-accent-strong disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-full bg-fg px-7 py-3.5 text-sm font-medium text-bg transition-[background-color,box-shadow] hover:bg-white hover:shadow-[0_0_36px_4px_rgb(217_184_255/0.4)] disabled:cursor-wait disabled:opacity-60"
         >
           {pending ? 'Odesílám…' : 'Odeslat poptávku'}
         </button>

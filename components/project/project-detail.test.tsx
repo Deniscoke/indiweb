@@ -9,7 +9,8 @@ const [project, next] = projects
 it('describes the project', () => {
   render(<ProjectDetail project={project} next={next} />)
   expect(screen.getByRole('heading', { level: 1, name: project.title })).toBeTruthy()
-  expect(screen.getByText(`${project.client} · Slovensko`)).toBeTruthy()
+  expect(screen.getByText(project.client)).toBeTruthy()
+  expect(screen.getByText('Slovensko')).toBeTruthy()
   expect(screen.getByText(project.description)).toBeTruthy()
   for (const highlight of project.highlights) expect(screen.getByText(highlight)).toBeTruthy()
 })

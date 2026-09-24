@@ -11,36 +11,33 @@ export function getInitials(name: string): string {
     .slice(0, 2)
 }
 
-const CARD = 'flex h-full flex-col rounded-3xl border border-line bg-surface p-8'
+const ROW =
+  'grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-2 py-8 md:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.4fr)_auto] md:gap-x-10'
 
+/** One team member as a row of the team list; the whole row links to a personal site if there is one. */
 export function TeamCard({ member }: { member: TeamMember }) {
   const body = (
     <>
       {member.photo ? (
-        <Image
-          src={member.photo}
-          alt=""
-          width={80}
-          height={80}
-          className="size-20 rounded-full object-cover"
-        />
+        <Image src={member.photo} alt="" width={56} height={56} className="size-14 rounded-full object-cover grayscale" />
       ) : (
         <span
           aria-hidden="true"
-          className="flex size-20 items-center justify-center rounded-full border border-line-strong bg-bg-soft font-display text-2xl font-semibold text-accent"
+          className="flex size-14 items-center justify-center rounded-full border border-line-strong font-mono text-xs text-fg-dim"
         >
           {getInitials(member.name)}
         </span>
       )}
-      <h3 className="mt-6 font-display text-2xl font-semibold tracking-tight">{member.name}</h3>
-      <p className="mt-1 text-sm text-accent">{member.role}</p>
-      <p className="mt-4 text-fg-dim">{member.bio}</p>
-      {member.website && (
-        <span className="mt-auto pt-6 text-sm text-fg-dim">
-          Osobní web <span aria-hidden="true">↗</span>
-          {' '}
+      <h3 className="text-2xl font-semibold tracking-tight sm:text-3xl">{member.name}</h3>
+      <p className="col-start-2 font-mono text-xs text-accent md:col-start-auto">{member.role}</p>
+      <p className="col-start-2 text-fg-dim md:col-start-auto">{member.bio}</p>
+      {member.website ? (
+        <span className="col-start-2 text-sm text-fg-dim md:col-start-auto">
+          Osobní web <span aria-hidden="true">↗</span>{' '}
           <span className="sr-only">(otevře se v novém okně)</span>
         </span>
+      ) : (
+        <span className="hidden md:block" />
       )}
     </>
   )
@@ -51,12 +48,12 @@ export function TeamCard({ member }: { member: TeamMember }) {
         href={member.website}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn(CARD, 'transition-colors hover:border-line-strong hover:bg-white/5')}
+        className={cn(ROW, 'row-light transition-colors hover:text-white')}
       >
         {body}
       </a>
     )
   }
 
-  return <div className={CARD}>{body}</div>
+  return <div className={ROW}>{body}</div>
 }
