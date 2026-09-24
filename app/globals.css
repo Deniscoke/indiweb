@@ -111,15 +111,23 @@
     display: block;
   }
 
+  .intro-scene,
+  .intro-scene canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
   .intro-wordmark {
     position: absolute;
-    top: 58%; /* matches INTRO_TEXT_Y in lib/intro.ts */
+    /* Set by the component from INTRO_TEXT_Y so the text sits on the glass rim. */
+    top: var(--intro-text-y, 70%);
     left: 50%;
     margin: 0;
     /* Room for the glow: the mask clips everything to this box. */
     padding: 0.6em 0.8em;
     transform: translate(-50%, -50%);
-    font-size: min(15vw, 17vh);
+    font-size: var(--intro-font-size, min(12vw, 10vh));
     font-weight: 600;
     line-height: 1;
     letter-spacing: -0.04em;

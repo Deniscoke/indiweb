@@ -1,47 +1,84 @@
 import { describe, expect, it } from 'vitest'
-import { INTRO_BOOT_SCRIPT, INTRO_DURATION, INTRO_STORAGE_KEY, introFrame } from '@/lib/intro'
+import { fragmentShader } from '@/components/intro/aperture/engine'
+import {
+  INTRO_BOOT_SCRIPT,
+  INTRO_DURATION,
+  INTRO_STORAGE_KEY,
+  INTRO_TEXT_Y,
+  fitShaderFrame,
+  introFrameHeight,
+  introOverlay,
+  introSceneTime,
+} from '@/lib/intro'
 
-describe('introFrame', () => {
-  it('starts in darkness with the overlay fully visible', () => {
-    expect(introFrame(0)).toMatchObject({ flare: 0, beam: 0, text: 0, rim: 0, opacity: 1 })
+describe('introSceneTime', () => {
+  it('skips the opening darkness of the original scene', () => {
+    expect(introSceneTime(0)).toBeGreaterThan(0)
   })
 
-  it('peaks the flare before the beam appears', () => {
-    const frame = introFrame(1.8)
-    expect(frame.flare).toBeCloseTo(1)
-    expect(frame.beam).toBe(0)
+  it('plays faster than real time and stops at the end of the scene', () => {
+    expect(introSceneTime(1) - introSceneTime(0)).toBeGreaterThan(1)
+    expect(introSceneTime(INTRO_DURATION + 10)).toBeCloseTo(introSceneTime(INTRO_DURATION))
   })
 
-  it('has the beam lighting up the wordmark and the rim at 4.5 s', () => {
-    expect(introFrame(4.5)).toMatchObject({ flare: 0, beam: 1, text: 1, rim: 1, opacity: 1 })
+  it('lasts about ten seconds', () => {
+    expect(INTRO_DURATION).toBeGreaterThan(8)
+    expect(INTRO_DURATION).toBeLessThan(11)
+  })
+})
+
+describe('introOverlay', () => {
+  it('keeps the wordmark dark until the glass rim appears', () => {
+    expect(introOverlay(8).text).toBe(0)
   })
 
-  it('moves the light source up while the flare contracts', () => {
-    expect(introFrame(1).sourceY).toBeLessThan(introFrame(4).sourceY)
+  it('lights the wordmark while the rim glows', () => {
+    expect(introOverlay(11)).toEqual({ text: 1, opacity: 1 })
   })
 
-  it('fades the overlay out by the end', () => {
-    expect(introFrame(INTRO_DURATION).opacity).toBe(0)
-    expect(introFrame(INTRO_DURATION + 5).opacity).toBe(0)
+  it('fades the overlay out at the end', () => {
+    expect(introOverlay(introSceneTime(INTRO_DURATION)).opacity).toBe(0)
   })
 
   it('never decreases the text reveal', () => {
     let previous = 0
     for (let t = 0; t <= INTRO_DURATION; t += 0.1) {
-      const { text } = introFrame(t)
+      const { text } = introOverlay(introSceneTime(t))
       expect(text).toBeGreaterThanOrEqual(previous)
       previous = text
     }
   })
+})
 
-  it('keeps every value between 0 and 1', () => {
-    for (let t = -1; t <= INTRO_DURATION + 1; t += 0.05) {
-      for (const value of Object.values(introFrame(t))) {
-        if (value === introFrame(t).sourceY) continue
-        expect(value).toBeGreaterThanOrEqual(0)
-        expect(value).toBeLessThanOrEqual(1)
-      }
-    }
+describe('introFrameHeight', () => {
+  it('keeps the 16:9 scene fully visible on a desktop screen', () => {
+    expect(introFrameHeight(1440, 900)).toBe(810)
+  })
+
+  it('zooms in on portrait phones instead of shrinking the scene to a strip', () => {
+    expect(introFrameHeight(390, 844)).toBeGreaterThan(390 * (9 / 16) * 2)
+    expect(introFrameHeight(390, 844)).toBeLessThanOrEqual(844)
+  })
+})
+
+describe('fitShaderFrame', () => {
+  it('replaces the fixed 16:9 letterbox with a uniform-driven, unclipped frame', () => {
+    const fitted = fitShaderFrame(fragmentShader)
+    expect(fitted).toContain('uniform float uFrameHeight;')
+    expect(fitted).toContain('frame.y=uFrameHeight;')
+    expect(fitted).not.toContain('min(uResolution.x,uResolution.y*16.0/9.0)')
+    expect(fitted).toContain('float inside=1.0;')
+  })
+
+  it('throws when the shader no longer has the expected frame code', () => {
+    expect(() => fitShaderFrame('void main() {}')).toThrow()
+  })
+})
+
+describe('INTRO_TEXT_Y', () => {
+  it('sits between the light source and the glass rim', () => {
+    expect(INTRO_TEXT_Y).toBeGreaterThan(0.5)
+    expect(INTRO_TEXT_Y).toBeLessThan(0.77)
   })
 })
 
@@ -49,6 +86,10 @@ describe('INTRO_BOOT_SCRIPT', () => {
   it('checks the same session key the component writes', () => {
     expect(INTRO_BOOT_SCRIPT).toContain(INTRO_STORAGE_KEY)
     expect(INTRO_BOOT_SCRIPT).toContain('prefers-reduced-motion: reduce')
+  })
+
+  it('requires WebGL 2, which the scene shader needs', () => {
+    expect(INTRO_BOOT_SCRIPT).toContain("getContext('webgl2')")
   })
 
   it('never throws, even without sessionStorage', () => {

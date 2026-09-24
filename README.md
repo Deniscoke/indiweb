@@ -48,3 +48,12 @@ Každý push do `main` nasadí Vercel automaticky (`vercel.json` nastavuje frame
 Voliteľne `NEXT_PUBLIC_SITE_URL` — kanonická adresa webu; inak sa použije produkčná doména z Vercelu.
 
 Po prvom nasadení skontroluj, že `/robots.txt`, `/sitemap.xml` a `og:image` host ukazujú na skutočnú doménu. Až bude vlastná doména hotová, nastav `NEXT_PUBLIC_SITE_URL`.
+
+## Intro (úvodná animácia)
+
+Svetelná scéna je „Aperture Light" od **Filipa Zrnzevića** ([CodePen](https://codepen.io/filipz/pen/01a08bf0-ef4f-7088-ac72-0c7fca61a657)), prevzatá bez zmien v `components/intro/aperture/engine.js`. Nápis IndiWeb, časovanie a správanie sú v `components/intro/intro-cinematic.tsx` a `lib/intro.ts`.
+
+- **Pred nasadením na produkciu je potrebný súhlas autora** (pen nemá uvedenú licenciu).
+- Prehrá sa raz za návštevu (sessionStorage), dá sa preskočiť (tlačidlo, klik, Esc); vynechá sa pri „obmedziť pohyb" a bez WebGL 2.
+- Three.js sa načíta len keď sa intro reálne prehráva.
+- Dĺžka a rýchlosť: `SCENE_START`, `SCENE_END`, `SCENE_RATE` v `lib/intro.ts`; poloha nápisu: `INTRO_TEXT_Y`.
