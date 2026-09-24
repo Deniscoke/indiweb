@@ -10,8 +10,6 @@ const LINE_PLACEMENT = ['justify-self-start', 'justify-self-center', 'justify-se
 export function Hero() {
   return (
     <section aria-labelledby="hero-nadpis" className="relative overflow-hidden">
-      {/* A bright core that follows the pointer inside the hero, like the intro's light source. */}
-      <div aria-hidden="true" className="hero-light" />
       <Container className="relative flex min-h-svh flex-col justify-between pt-32 pb-10 sm:pt-36 sm:pb-12">
         <h1
           id="hero-nadpis"
