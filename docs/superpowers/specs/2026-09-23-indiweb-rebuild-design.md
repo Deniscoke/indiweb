@@ -1,7 +1,7 @@
 # IndiWeb — rebuild webu (návrh)
 
 **Dátum:** 2026-09-23
-**Stav:** schválené v konverzácii, čaká na kontrolu dokumentu
+**Stav:** implementované na vetve feat/rebuild
 **Autori:** Denis Mitrović (zadanie), Claude (návrh)
 
 ## 1. Cieľ
