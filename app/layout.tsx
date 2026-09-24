@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, Inter } from 'next/font/google'
 import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/footer'
+import { IntroCinematic } from '@/components/intro/intro-cinematic'
 import { Header } from '@/components/layout/header'
 import { site } from '@/content/site'
+import { INTRO_BOOT_SCRIPT } from '@/lib/intro'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-inter', display: 'swap' })
@@ -30,13 +32,20 @@ export const viewport: Viewport = { themeColor: '#08080a' }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="cs" className={`${inter.variable} ${bricolage.variable}`}>
+    <html
+      lang="cs"
+      className={`${inter.variable} ${bricolage.variable}`}
+      // The intro boot script may set data-intro before React hydrates.
+      suppressHydrationWarning
+    >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
         <noscript>
           <style>{'.reveal{opacity:1!important;transform:none!important}'}</style>
         </noscript>
       </head>
       <body className="bg-bg font-sans text-fg antialiased">
+        <IntroCinematic />
         <div aria-hidden="true" className="ambient-glow" />
         <div aria-hidden="true" className="ambient-grain" />
         <a

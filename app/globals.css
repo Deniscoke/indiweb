@@ -95,6 +95,57 @@
   }
 }
 
+/* Opening cinematic: rendered hidden, shown only when the <head> boot script
+   sets html[data-intro="play"] before first paint. */
+@layer components {
+  .intro {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #000000;
+    cursor: pointer;
+  }
+
+  html[data-intro="play"] .intro {
+    display: block;
+  }
+
+  .intro-wordmark {
+    position: absolute;
+    top: 58%; /* matches INTRO_TEXT_Y in lib/intro.ts */
+    left: 50%;
+    margin: 0;
+    /* Room for the glow: the mask clips everything to this box. */
+    padding: 0.6em 0.8em;
+    transform: translate(-50%, -50%);
+    font-size: min(15vw, 17vh);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    pointer-events: none;
+    /* The beam lights the letters from the top down. */
+    mask-image: linear-gradient(
+      to bottom,
+      #000000 calc(var(--lit, 0) * 120% - 10%),
+      transparent calc(var(--lit, 0) * 120% + 10%)
+    );
+    filter: blur(calc((1 - var(--lit, 0)) * 8px));
+  }
+
+  .intro-wordmark__text {
+    color: #eef0ff;
+    text-shadow:
+      0 0 calc(var(--lit, 0) * 18px) rgb(190 198 255 / 0.7),
+      0 0 calc(var(--lit, 0) * 48px) rgb(140 150 255 / 0.45);
+  }
+}
+
+html[data-intro="play"] body {
+  overflow: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
