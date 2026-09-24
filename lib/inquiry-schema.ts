@@ -43,6 +43,6 @@ export function parseInquiry(formData: FormData): ParseInquiryResult {
 }
 
 export function isHoneypotFilled(formData: FormData): boolean {
-  const value = formData.get('website')
+  const value = formData.get('company_url_2')
   return typeof value === 'string' && value.trim() !== ''
 }

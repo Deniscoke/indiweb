@@ -19,7 +19,7 @@ function inquiryForm(overrides: Record<string, string> = {}) {
     email: 'jana@example.cz',
     service: 'web',
     message: 'Potřebujeme nový web pro kavárnu.',
-    website: '',
+    company_url_2: '',
     ...overrides,
   }
   const formData = new FormData()
@@ -60,7 +60,7 @@ describe('sendInquiry', () => {
 
   it('pretends success for bots that fill the honeypot', async () => {
     await expect(
-      sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm({ website: 'https://spam.example' })),
+      sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm({ company_url_2: 'https://spam.example' })),
     ).resolves.toEqual({ status: 'success' })
     expect(sendMock).not.toHaveBeenCalled()
   })

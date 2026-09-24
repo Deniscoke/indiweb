@@ -96,10 +96,10 @@ describe('parseInquiry', () => {
 describe('isHoneypotFilled', () => {
   it('is false when the hidden field is missing or blank', () => {
     expect(isHoneypotFilled(new FormData())).toBe(false)
-    expect(isHoneypotFilled(form({ website: '   ' }))).toBe(false)
+    expect(isHoneypotFilled(form({ company_url_2: '   ' }))).toBe(false)
   })
 
   it('is true when a bot filled the hidden field', () => {
-    expect(isHoneypotFilled(form({ website: 'https://spam.example' }))).toBe(true)
+    expect(isHoneypotFilled(form({ company_url_2: 'https://spam.example' }))).toBe(true)
   })
 })

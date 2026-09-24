@@ -1,6 +1,13 @@
 import type { Media, NavItem } from './types'
 
-const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL
+function resolveSiteUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  }
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  return 'http://localhost:3000'
+}
 
 export const site = {
   name: 'IndiWeb',
@@ -8,9 +15,7 @@ export const site = {
   description:
     'Denis, Adam a Ondra. Navrhujeme weby, 3D vizualizace a AI agenty, kteří za vás zvednou telefon.',
   email: 'info.indiweb@gmail.com',
-  url:
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (productionHost ? `https://${productionHost}` : 'http://localhost:3000'),
+  url: resolveSiteUrl(),
   locale: 'cs_CZ',
 }
 

@@ -19,7 +19,9 @@ it('links to the live site, the inquiry form and the next project', () => {
   const live = screen.getByRole('link', { name: /Otevřít web/ })
   expect(live.getAttribute('href')).toBe(project.liveUrl)
   expect(live.getAttribute('target')).toBe('_blank')
-  expect(screen.getByRole('link', { name: 'Chci podobný web' }).getAttribute('href')).toBe('/#kontakt')
+  const ctaLinks = screen.getAllByRole('link', { name: 'Chci podobný web' })
+  expect(ctaLinks.length).toBeGreaterThan(0)
+  for (const cta of ctaLinks) expect(cta.getAttribute('href')).toBe('/#kontakt')
   expect(screen.getByRole('link', { name: `${next.title} →` }).getAttribute('href')).toBe(
     `/projekty/${next.slug}`,
   )

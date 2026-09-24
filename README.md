@@ -46,3 +46,5 @@ Dopyty chodia cez [Resend](https://resend.com) na `info.indiweb@gmail.com`.
 
 Každý push do `main` nasadí Vercel automaticky (`vercel.json` nastavuje framework Next.js). Iné vetvy dostanú preview URL.
 Voliteľne `NEXT_PUBLIC_SITE_URL` — kanonická adresa webu; inak sa použije produkčná doména z Vercelu.
+
+Po prvom nasadení skontroluj, že `/robots.txt`, `/sitemap.xml` a `og:image` host ukazujú na skutočnú doménu. Až bude vlastná doména hotová, nastav `NEXT_PUBLIC_SITE_URL`.

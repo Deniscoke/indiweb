@@ -63,17 +63,24 @@ export function ProjectDetail({ project, next }: { project: Project; next?: Proj
           </section>
         </div>
 
-        {next && (
-          <nav aria-label="Další projekt" className="mt-20 border-t border-line pt-10">
-            <p className="text-sm text-fg-faint">Další projekt</p>
-            <Link
-              href={`/projekty/${next.slug}`}
-              className="mt-2 inline-block font-display text-3xl font-semibold transition-colors hover:text-accent"
-            >
-              {next.title} →
-            </Link>
-          </nav>
-        )}
+        <div className="mt-20 flex flex-col gap-6 border-t border-line pt-10 sm:flex-row sm:items-end sm:justify-between">
+          {next ? (
+            <nav aria-label="Další projekt">
+              <p className="text-sm text-fg-faint">Další projekt</p>
+              <Link
+                href={`/projekty/${next.slug}`}
+                className="mt-2 inline-block font-display text-3xl font-semibold transition-colors hover:text-accent"
+              >
+                {next.title} →
+              </Link>
+            </nav>
+          ) : (
+            <div />
+          )}
+          <ButtonLink href="/#kontakt" variant="ghost">
+            Chci podobný web
+          </ButtonLink>
+        </div>
       </Container>
     </article>
   )

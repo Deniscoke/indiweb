@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import {
   startTransition,
   useActionState,
+  useEffect,
   useRef,
   useState,
   type FormEvent,
@@ -22,7 +23,10 @@ import {
 } from '@/lib/inquiry-options'
 
 const CONTROL =
-  'w-full rounded-xl border bg-bg/60 px-4 py-3 text-fg transition-colors placeholder:text-fg-faint focus:border-accent focus:outline-hidden'
+  'w-full rounded-xl border bg-bg/60 px-4 py-3 text-fg transition-colors placeholder:text-fg-faint focus:border-accent focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent/40'
+
+// Order in which fields are focused when the server action reports validation errors.
+const FIELD_FOCUS_ORDER: InquiryField[] = ['name', 'email', 'service', 'message']
 
 type FieldProps = {
   id: InquiryField
@@ -58,7 +62,11 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
   const [state, formAction, pending] = useActionState(sendInquiry, INITIAL_INQUIRY_STATE)
   const [chosenService, setChosenService] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const nameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const serviceRef = useRef<HTMLSelectElement>(null)
   const messageRef = useRef<HTMLTextAreaElement>(null)
+  const successRef = useRef<HTMLDivElement>(null)
 
   const service = chosenService ?? presetService ?? ''
   const errors = state.status === 'invalid' ? state.fieldErrors : {}
@@ -68,6 +76,29 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
     'aria-describedby': errorOf(field) ? `${field}-chyba` : undefined,
     className: cn(CONTROL, errorOf(field) ? 'border-danger' : 'border-line'),
   })
+
+  useEffect(() => {
+    if (state.status === 'success') successRef.current?.focus()
+  }, [state])
+
+  useEffect(() => {
+    if (state.status !== 'invalid') return
+    const firstInvalid = FIELD_FOCUS_ORDER.find((field) => state.fieldErrors[field]?.[0])
+    switch (firstInvalid) {
+      case 'name':
+        nameRef.current?.focus()
+        break
+      case 'email':
+        emailRef.current?.focus()
+        break
+      case 'service':
+        serviceRef.current?.focus()
+        break
+      case 'message':
+        messageRef.current?.focus()
+        break
+    }
+  }, [state])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     // A native form action would reset every field when the action returns,
@@ -89,7 +120,13 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
 
   if (state.status === 'success') {
     return (
-      <div role="status" className="rounded-2xl border border-success/30 bg-success/10 p-6">
+      <div
+        ref={successRef}
+        role="status"
+        tabIndex={-1}
+        className="rounded-2xl border border-success/30 bg-success/10 p-6 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent/40"
+      >
+
         <p className="font-display text-xl font-semibold">Díky, zpráva dorazila.</p>
         <p className="mt-2 text-fg-dim">Ozveme se vám do 24 hodin na e-mail, který jste uvedli.</p>
       </div>
@@ -106,6 +143,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="name" label="Jméno" error={errorOf('name')}>
           <input
+            ref={nameRef}
             id="name"
             name="name"
             type="text"
@@ -118,6 +156,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
         </Field>
         <Field id="email" label="E-mail" error={errorOf('email')}>
           <input
+            ref={emailRef}
             id="email"
             name="email"
             type="email"
@@ -131,6 +170,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
 
       <Field id="service" label="O co máte zájem" optional error={errorOf('service')}>
         <select
+          ref={serviceRef}
           id="service"
           name="service"
           value={service}
@@ -160,8 +200,14 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
       </Field>
 
       <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
-        <label htmlFor="website">Web (nevyplňujte)</label>
-        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor="company_url_2">Web (nevyplňujte)</label>
+        <input
+          id="company_url_2"
+          name="company_url_2"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
       </div>
 
       <div>

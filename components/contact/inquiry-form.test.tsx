@@ -38,7 +38,7 @@ describe('InquiryForm', () => {
       email: 'jana@example.cz',
       service: 'ai',
       message: 'Potřebujeme nový web pro kavárnu.',
-      website: '',
+      company_url_2: '',
     })
     expect(screen.queryByRole('form', { name: 'Poptávkový formulář' })).toBeNull()
   })
@@ -85,9 +85,32 @@ describe('InquiryForm', () => {
 
   it('hides the honeypot from keyboard users', () => {
     const { container } = render(<InquiryForm />)
-    const honeypot = container.querySelector('input[name="website"]') as HTMLInputElement
+    const honeypot = container.querySelector('input[name="company_url_2"]') as HTMLInputElement
     expect(honeypot.tabIndex).toBe(-1)
     expect(honeypot.closest('[aria-hidden="true"]')).not.toBeNull()
+  })
+
+  it('focuses the success message on success', async () => {
+    sendInquiryMock.mockResolvedValue({ status: 'success' })
+    render(<InquiryForm />)
+    fillValid()
+    submit()
+
+    const status = await screen.findByRole('status')
+    expect(document.activeElement).toBe(status)
+  })
+
+  it('focuses the first invalid field, in name/email/service/message order', async () => {
+    sendInquiryMock.mockResolvedValue({
+      status: 'invalid',
+      fieldErrors: { message: ['Napište nám zprávu.'], email: ['Zadejte platný e-mail.'] },
+    })
+    render(<InquiryForm />)
+    fillValid()
+    submit()
+
+    await screen.findByText('Zadejte platný e-mail.')
+    expect(document.activeElement).toBe(input('E-mail'))
   })
 })
 
