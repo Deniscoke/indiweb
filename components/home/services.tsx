@@ -38,7 +38,7 @@ export function Services() {
     })
 
   return (
-    <section id="sluzby" aria-labelledby="sluzby-nadpis" className="py-28 sm:py-40">
+    <section id="sluzby" aria-labelledby="sluzby-nadpis" className="py-20 sm:py-40">
       <Container>
         <SectionHeading
           id="sluzby-nadpis"
@@ -46,14 +46,14 @@ export function Services() {
           lead="Navrhujeme a stavíme weby na míru. A když to dává smysl, přidáme 3D, splaty nebo AI agenta, který za vás odvede kus práce."
         />
 
-        <div className="mt-20 border-b border-line">
+        <div className="mt-12 border-b sm:mt-20 border-line">
           {services.map((service) => {
             const isOpen = open.has(service.id)
             const panelId = `sluzba-${service.id}`
             return (
               <article key={service.id} className="row-light border-t border-line">
                 <div className="relative grid gap-3 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_auto] md:items-baseline md:gap-10">
-                  <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                  <h3 className="flex items-center justify-between gap-6 text-3xl font-semibold tracking-tight sm:text-4xl">
                     <button
                       type="button"
                       onClick={() => toggle(service.id)}
@@ -63,6 +63,10 @@ export function Services() {
                     >
                       {service.title}
                     </button>
+                    {/* On phones the toggle sits next to the title; on wider screens it has its own column. */}
+                    <span className="text-fg-dim md:hidden">
+                      <PlusIcon open={isOpen} />
+                    </span>
                   </h3>
                   <p className="text-fg-dim">{service.summary}</p>
                   <span className="hidden text-fg-dim md:block">

@@ -5,7 +5,7 @@ import { InquiryForm, InquiryFormWithParams } from './inquiry-form'
 
 export function ContactSection() {
   return (
-    <section id="kontakt" aria-labelledby="kontakt-nadpis" className="py-28 sm:py-40">
+    <section id="kontakt" aria-labelledby="kontakt-nadpis" className="py-20 sm:py-40">
       <Container className="grid gap-16 lg:grid-cols-[1fr_1.15fr]">
         <div>
           {/* Lit by the pointer instead of the reveal sweep: the sweep's filter breaks the fixed light. */}
@@ -20,7 +20,7 @@ export function ContactSection() {
           </p>
           <p className="mt-10 text-sm text-fg-faint">
             Raději e-mailem?{' '}
-            <a href={`mailto:${site.email}`} className="font-mono text-fg-dim underline underline-offset-4 hover:text-fg">
+            <a href={`mailto:${site.email}`} className="inline-block py-3 font-mono text-fg-dim underline underline-offset-4 hover:text-fg">
               {site.email}
             </a>
           </p>

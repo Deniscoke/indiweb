@@ -8,6 +8,7 @@ import {
   fitShaderFrame,
   introFrameHeight,
   introOverlay,
+  introPixelRatio,
   introSceneTime,
   markIntroSeen,
 } from '@/lib/intro'
@@ -93,7 +94,8 @@ export function IntroCinematic() {
       resize = () => {
         const width = window.innerWidth
         const height = window.innerHeight
-        const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1, Math.sqrt(3e6 / (width * height))))
+        const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
+        const ratio = introPixelRatio(width, height, window.devicePixelRatio, coarse)
         const frameHeight = introFrameHeight(width, height)
         renderer.setPixelRatio(ratio)
         renderer.setSize(width, height)

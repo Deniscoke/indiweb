@@ -36,7 +36,7 @@ export function AriaPage() {
         </Container>
       </section>
 
-      <section aria-labelledby="aria-umi" className="py-28">
+      <section aria-labelledby="aria-umi" className="py-20 sm:py-28">
         <Container>
           <SectionHeading id="aria-umi" title="Telefon, který nikdy nezvoní naprázdno." />
           <ul className="mt-16 grid border-t border-line md:grid-cols-2">
@@ -49,7 +49,7 @@ export function AriaPage() {
         </Container>
       </section>
 
-      <section aria-labelledby="aria-pro-koho" className="py-28">
+      <section aria-labelledby="aria-pro-koho" className="py-20 sm:py-28">
         <Container>
           <SectionHeading id="aria-pro-koho" title="Pro všechny, kdo nestíhají zvedat telefon." />
           <ul className="mt-16 flex flex-wrap gap-x-10 gap-y-4 font-mono text-sm text-fg-dim">
@@ -60,14 +60,14 @@ export function AriaPage() {
         </Container>
       </section>
 
-      <section aria-labelledby="aria-nasazeni" className="py-28">
+      <section aria-labelledby="aria-nasazeni" className="py-20 sm:py-28">
         <Container>
           <SectionHeading id="aria-nasazeni" title="Jak Ariu spustíme u vás." />
           <StepList steps={aria.rollout} className="mt-16" />
         </Container>
       </section>
 
-      <section aria-labelledby="aria-cta" className="py-28">
+      <section aria-labelledby="aria-cta" className="py-20 sm:py-28">
         <Container>
           <div className="relative border-y border-line py-20 text-center">
             <span

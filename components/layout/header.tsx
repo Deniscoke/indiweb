@@ -71,7 +71,7 @@ export function Header() {
       )}
     >
       <Container className="relative z-10 flex h-18 items-center justify-between gap-6">
-        <Link href="/" onClick={close} className="flex items-center gap-3 text-lg font-semibold tracking-tight">
+        <Link href="/" onClick={close} className="-my-2 flex items-center gap-3 py-2 text-lg font-semibold tracking-tight">
           <span
             aria-hidden="true"
             className="size-2 rounded-full bg-white shadow-[0_0_12px_2px_rgb(255_255_255/0.75),0_0_28px_6px_rgb(217_184_255/0.35)]"
@@ -120,7 +120,7 @@ export function Header() {
                 ))}
               </ul>
             </nav>
-            <a href={`mailto:${site.email}`} className="font-mono text-sm text-fg-dim hover:text-fg">
+            <a href={`mailto:${site.email}`} className="inline-block py-3 font-mono text-sm text-fg-dim hover:text-fg">
               {site.email}
             </a>
           </Container>

@@ -87,3 +87,12 @@ export function markIntroSeen(): void {
     // Storage can be blocked (private mode); the intro then just plays again next visit.
   }
 }
+
+/** Most pixels the intro shader renders per frame: phones get a smaller budget. */
+const PIXEL_BUDGET = { fine: 3e6, coarse: 7e5 }
+
+/** Device pixel ratio for the intro canvas, capped so the shader stays smooth. */
+export function introPixelRatio(width: number, height: number, devicePixelRatio: number, coarsePointer: boolean): number {
+  const budget = coarsePointer ? PIXEL_BUDGET.coarse : PIXEL_BUDGET.fine
+  return Math.max(1, Math.min(2, devicePixelRatio || 1, Math.sqrt(budget / Math.max(1, width * height))))
+}

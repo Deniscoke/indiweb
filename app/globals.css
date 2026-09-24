@@ -157,10 +157,20 @@
     display: none;
   }
 
-  /* Without a pointer the hero light rests above the headline. */
+  /* Without a pointer the hero light rests above the headline, unblurred:
+     filters on large layers are costly on phone GPUs. */
   .hero-light {
     left: 70%;
     top: 22%;
+    filter: none;
+  }
+
+  /* A blended full-screen layer is recomposited on every scroll frame; phones
+     get the same grain as a plain, lighter overlay instead. */
+  .ambient-grain {
+    inset: 0;
+    opacity: 0.035;
+    mix-blend-mode: normal;
   }
 
   .lit {

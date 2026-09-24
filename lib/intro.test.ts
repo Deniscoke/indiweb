@@ -8,6 +8,7 @@ import {
   fitShaderFrame,
   introFrameHeight,
   introOverlay,
+  introPixelRatio,
   introSceneTime,
 } from '@/lib/intro'
 
@@ -94,5 +95,23 @@ describe('INTRO_BOOT_SCRIPT', () => {
 
   it('never throws, even without sessionStorage', () => {
     expect(() => new Function(INTRO_BOOT_SCRIPT)()).not.toThrow()
+  })
+})
+
+describe('introPixelRatio', () => {
+  it('renders above CSS resolution on a desktop screen, within 3 megapixels', () => {
+    const ratio = introPixelRatio(1440, 900, 2, false)
+    expect(ratio).toBeGreaterThan(1.4)
+    expect(1440 * 900 * ratio * ratio).toBeLessThanOrEqual(3e6 + 1)
+  })
+
+  it('keeps a phone within about 0.7 megapixels per frame', () => {
+    const ratio = introPixelRatio(390, 844, 3, true)
+    expect(390 * 844 * ratio * ratio).toBeLessThanOrEqual(7e5 + 1)
+    expect(ratio).toBeGreaterThanOrEqual(1)
+  })
+
+  it('never drops below the CSS pixel size', () => {
+    expect(introPixelRatio(3840, 2160, 1, true)).toBe(1)
   })
 })

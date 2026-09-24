@@ -7,9 +7,9 @@ import { aria } from '@/content/aria'
 
 export function AriaTeaser() {
   return (
-    <section id="aria" aria-labelledby="aria-nadpis" className="py-28 sm:py-40">
+    <section id="aria" aria-labelledby="aria-nadpis" className="py-20 sm:py-40">
       <Container>
-        <div className="relative overflow-hidden border-y border-line py-16 sm:py-24">
+        <div className="relative overflow-hidden border-y border-line py-12 sm:py-24">
           {/* The glass rim from the intro, as a thin line of refracted light. */}
           <span
             aria-hidden="true"

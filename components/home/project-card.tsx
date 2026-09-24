@@ -17,7 +17,7 @@ export function ProjectCard({ project }: { project: Project }) {
           width={PROJECT_IMAGE_SIZE.width}
           height={PROJECT_IMAGE_SIZE.height}
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="h-auto w-full brightness-75 grayscale transition-[filter,scale] duration-700 ease-out group-hover:scale-[1.02] group-hover:brightness-100 group-hover:grayscale-0 motion-reduce:transition-none"
+          className="h-auto w-full brightness-75 grayscale transition-[filter,scale] duration-700 ease-out group-hover:scale-[1.02] group-hover:brightness-100 group-hover:grayscale-0 pointer-coarse:brightness-100 pointer-coarse:grayscale-0 motion-reduce:transition-none"
         />
         {/* A rim of light appears around the screenshot as it comes to colour. */}
         <span
@@ -43,7 +43,7 @@ export function ProjectCard({ project }: { project: Project }) {
           href={project.liveUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative z-10 text-sm text-accent underline-offset-4 hover:underline"
+          className="relative z-10 -my-3 py-3 text-sm text-accent underline-offset-4 hover:underline"
         >
           Živá ukázka <span aria-hidden="true">↗</span>{' '}
           <span className="sr-only">(otevře se v novém okně)</span>

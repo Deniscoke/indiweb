@@ -12,10 +12,10 @@ export function Hero() {
     <section aria-labelledby="hero-nadpis" className="relative overflow-hidden">
       {/* A bright core that follows the pointer inside the hero, like the intro's light source. */}
       <div aria-hidden="true" className="hero-light" />
-      <Container className="relative flex min-h-svh flex-col justify-between pt-36 pb-12">
+      <Container className="relative flex min-h-svh flex-col justify-between pt-32 pb-10 sm:pt-36 sm:pb-12">
         <h1
           id="hero-nadpis"
-          className="grid gap-4 text-[clamp(3rem,10vw,9.5rem)] leading-[0.92] font-semibold tracking-[-0.05em]"
+          className="grid gap-4 text-[clamp(3.25rem,13vw,9.5rem)] leading-[0.92] font-semibold tracking-[-0.05em]"
         >
           {hero.lines.map((line, index) => (
             // The space keeps the lines apart for screen readers; grid layout hides it.

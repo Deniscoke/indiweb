@@ -11,16 +11,16 @@ export function Footer() {
           © {year} {site.name}. Tvoříme s péčí.
         </p>
         <nav aria-label="Patička">
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+          <ul className="flex flex-wrap gap-x-6">
             {navigation.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="hover:text-fg">
+                <Link href={item.href} className="inline-block py-3 hover:text-fg">
                   {item.label}
                 </Link>
               </li>
             ))}
             <li>
-              <a href={`mailto:${site.email}`} className="hover:text-fg">
+              <a href={`mailto:${site.email}`} className="inline-block py-3 hover:text-fg">
                 {site.email}
               </a>
             </li>
