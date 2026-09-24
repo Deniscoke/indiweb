@@ -1,3 +1,4 @@
+import { ContactSection } from '@/components/contact/contact-section'
 import { AriaTeaser } from '@/components/home/aria-teaser'
 import { Hero } from '@/components/home/hero'
 import { Process } from '@/components/home/process'
@@ -14,6 +15,7 @@ export default function HomePage() {
       <Projects />
       <Process />
       <Team />
+      <ContactSection />
     </>
   )
 }
