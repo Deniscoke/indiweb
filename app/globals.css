@@ -34,6 +34,19 @@
   html {
     scroll-behavior: smooth;
     color-scheme: dark;
+    /* No visible scrollbar: the page scrolls by wheel, touchpad, keys and touch as usual. */
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Nothing may ever scroll the page sideways. Unlike hidden, clip creates no
+     scroll container, so pinned scenes and sticky elements keep working. */
+  html,
+  body {
+    overflow-x: clip;
   }
 
   section[id] {
