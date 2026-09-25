@@ -2,7 +2,7 @@
 import { render } from '@testing-library/react'
 import { useRef } from 'react'
 import { expect, it, vi } from 'vitest'
-import { DESKTOP_MOTION, fitsInView, MOBILE_MOTION, useScene, type SceneMode } from '@/lib/motion'
+import { DESKTOP_MOTION, fitsInView, MOBILE_MOTION, stepAt, useScene, type SceneMode } from '@/lib/motion'
 
 function stubMedia(matching: string[]) {
   vi.stubGlobal(
@@ -69,4 +69,13 @@ it('tells whether an element fits on screen with room to spare', () => {
   expect(fitsInView(box, 150)).toBe(true)
   expect(fitsInView(box, 250)).toBe(false)
   expect(fitsInView(null)).toBe(false)
+})
+
+it('picks the step a scrubbed timeline is closest to', () => {
+  expect(stepAt(0, 4)).toBe(0)
+  expect(stepAt(0.49, 4)).toBe(0)
+  expect(stepAt(0.51, 4)).toBe(1)
+  expect(stepAt(2.7, 4)).toBe(3)
+  expect(stepAt(9, 4)).toBe(3)
+  expect(stepAt(-1, 4)).toBe(0)
 })

@@ -49,3 +49,8 @@ export function fitsInView(element: Element | null | undefined, margin = 0): boo
   if (!element) return false
   return element.getBoundingClientRect().height + margin <= window.innerHeight
 }
+
+/** Which of `count` steps a scrubbed timeline (one time unit per step) is closest to. */
+export function stepAt(time: number, count: number): number {
+  return Math.min(count - 1, Math.max(0, Math.round(time)))
+}

@@ -30,3 +30,11 @@ it('keeps the static layout when the scroll story does not run', () => {
   const { container } = render(<Services />)
   expect(container.querySelector('[data-stage]')?.hasAttribute('data-staged')).toBe(false)
 })
+
+it('draws a numbered index of the services that screen readers skip (the panels carry the headings)', () => {
+  const { container } = render(<Services />)
+  const index = container.querySelector('[data-index]')
+  expect(index?.getAttribute('aria-hidden')).toBe('true')
+  const items = [...(index?.querySelectorAll('[data-index-item]') ?? [])].map((item) => item.textContent)
+  expect(items).toEqual(services.map((service, i) => `0${i + 1}${service.title}`))
+})
