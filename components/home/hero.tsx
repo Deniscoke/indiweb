@@ -38,6 +38,9 @@ export function Hero() {
         // A gentle ease keeps the ring on screen long enough to be read as a ring.
         .fromTo('[data-aperture]', { scale: 0.05, opacity: 0 }, { scale: 3.2, opacity: 1, ease: 'power1.in', duration: 0.85 }, 0.05)
         .to('[data-aperture-flash]', { opacity: 0.55, duration: 0.12, ease: 'power2.in' }, 0.8)
+        // The ring dissolves into the flash, so it is gone before the section
+        // scrolls away and its bottom edge could cut the ring off.
+        .to('[data-aperture]', { opacity: 0, duration: 0.2, ease: 'power1.out' }, 0.85)
         .to('[data-aperture-flash]', { opacity: 0, duration: 0.25, ease: 'power2.out' }, 0.92)
     }
   })
