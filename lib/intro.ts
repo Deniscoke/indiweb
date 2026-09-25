@@ -30,6 +30,11 @@ export function introSceneTime(elapsed: number): number {
   return Math.min(SCENE_END, SCENE_START + Math.max(0, elapsed) * SCENE_RATE)
 }
 
+/** The inverse: seconds since the intro started at which the scene reaches a given time. */
+export function introElapsed(sceneTime: number): number {
+  return (sceneTime - SCENE_START) / SCENE_RATE
+}
+
 /** Wordmark light (0–1) and overlay opacity (0–1) for a given scene time. */
 export function introOverlay(sceneTime: number): { text: number; opacity: number } {
   return {

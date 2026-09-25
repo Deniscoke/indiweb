@@ -2,7 +2,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { createRenderer } = vi.hoisted(() => ({ createRenderer: vi.fn() }))
+const { createRenderer, createSound, sound } = vi.hoisted(() => {
+  const sound = { update: vi.fn(), release: vi.fn() }
+  return { createRenderer: vi.fn(), createSound: vi.fn(() => sound), sound }
+})
+
+// jsdom has no Web Audio: the soundtrack is replaced by a spy.
+vi.mock('@/components/intro/intro-sound', () => ({ createIntroSound: createSound }))
 
 // jsdom has no WebGL: stand in for the few three.js classes the intro uses.
 vi.mock('three', () => ({
@@ -53,6 +59,9 @@ beforeEach(() => {
   sessionStorage.clear()
   delete html.dataset.intro
   createRenderer.mockImplementation(workingRenderer)
+  createSound.mockClear()
+  sound.update.mockClear()
+  sound.release.mockClear()
 })
 
 afterEach(() => {
@@ -106,5 +115,37 @@ describe('IntroCinematic', () => {
     const { container } = render(<IntroCinematic />)
     expect(container.querySelector('.intro-scene')?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.getByText('IndiWeb').closest('[aria-hidden="true"]')).not.toBeNull()
+  })
+
+  it('starts silent and offers the soundtrack as a toggle that does not skip the intro', async () => {
+    html.dataset.intro = 'play'
+    render(<IntroCinematic />)
+    const toggle = screen.getByRole('button', { name: 'Zvuk' })
+    expect(toggle.getAttribute('aria-pressed')).toBe('false')
+    expect(createSound).not.toHaveBeenCalled()
+
+    fireEvent.click(toggle)
+    expect(createSound).toHaveBeenCalledTimes(1)
+    expect(toggle.getAttribute('aria-pressed')).toBe('true')
+    expect(html.dataset.intro).toBe('play')
+  })
+
+  it('turns the soundtrack off again', () => {
+    html.dataset.intro = 'play'
+    render(<IntroCinematic />)
+    const toggle = screen.getByRole('button', { name: 'Zvuk' })
+    fireEvent.click(toggle)
+    fireEvent.click(toggle)
+    expect(sound.release).toHaveBeenCalledTimes(1)
+    expect(toggle.getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('lets the soundtrack ring out when the intro is skipped', async () => {
+    html.dataset.intro = 'play'
+    render(<IntroCinematic />)
+    fireEvent.click(screen.getByRole('button', { name: 'Zvuk' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Přeskočit intro' }))
+    expect(sound.release).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(html.dataset.intro).toBeUndefined())
   })
 })
