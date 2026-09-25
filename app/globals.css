@@ -101,6 +101,19 @@
   }
 
   /* Scroll story — scene 1: the ring of light the camera flies through. */
+  /* Holds the ring and the flash; hidden at once when the hero's pin ends. */
+  .aperture-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .aperture-layer[data-gone] {
+    opacity: 0;
+  }
+
   .aperture-ring {
     position: absolute;
     top: 50%;

@@ -18,6 +18,11 @@ export function Hero() {
   // to the services.
   useScene(ref, ({ desktop }) => {
     const lines = gsap.utils.toArray<HTMLElement>('[data-hero-line]')
+    const layer = ref.current?.querySelector<HTMLElement>('[data-aperture-layer]')
+    // The scrubbed animation trails the scroll by up to a second, so on a fast
+    // scroll the ring could still be lit when the section starts to move and its
+    // bottom edge would cut it off. The layer is hidden the moment the pin ends.
+    const setGone = (gone: boolean) => layer?.toggleAttribute('data-gone', gone)
     const timeline = gsap.timeline({
       scrollTrigger: {
         trigger: ref.current,
@@ -25,6 +30,8 @@ export function Hero() {
         end: desktop ? '+=100%' : 'bottom top',
         scrub: desktop ? 1 : 0.6,
         pin: desktop,
+        onLeave: () => setGone(true),
+        onEnterBack: () => setGone(false),
       },
     })
     timeline
@@ -43,12 +50,15 @@ export function Hero() {
         .to('[data-aperture]', { opacity: 0, duration: 0.2, ease: 'power1.out' }, 0.85)
         .to('[data-aperture-flash]', { opacity: 0, duration: 0.25, ease: 'power2.out' }, 0.92)
     }
+    return () => setGone(false)
   })
 
   return (
     <section ref={ref} aria-labelledby="hero-nadpis" className="relative overflow-hidden">
-      <div aria-hidden="true" data-aperture className="aperture-ring" />
-      <div aria-hidden="true" data-aperture-flash className="aperture-flash" />
+      <div aria-hidden="true" data-aperture-layer className="aperture-layer">
+        <div data-aperture className="aperture-ring" />
+        <div data-aperture-flash className="aperture-flash" />
+      </div>
       <Container className="relative flex min-h-svh flex-col justify-between pt-32 pb-10 sm:pt-36 sm:pb-12">
         <h1
           id="hero-nadpis"
