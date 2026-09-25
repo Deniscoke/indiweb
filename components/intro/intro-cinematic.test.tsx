@@ -59,6 +59,7 @@ beforeEach(() => {
   sessionStorage.clear()
   delete html.dataset.intro
   createRenderer.mockImplementation(workingRenderer)
+  createRenderer.mockClear()
   createSound.mockClear()
   sound.update.mockClear()
   sound.release.mockClear()
@@ -68,20 +69,45 @@ afterEach(() => {
   delete html.dataset.intro
 })
 
+const enterButton = () => screen.getByRole('button', { name: 'Vstoupit' })
+
 describe('IntroCinematic', () => {
   it('does nothing when the boot script decided not to play', async () => {
     render(<IntroCinematic />)
+    fireEvent.click(enterButton())
     await new Promise((resolve) => setTimeout(resolve, 50))
     expect(createRenderer).not.toHaveBeenCalled()
+    expect(createSound).not.toHaveBeenCalled()
     expect(sessionStorage.getItem(INTRO_STORAGE_KEY)).toBeNull()
   })
 
-  it('starts the light scene when the boot script asked for it', async () => {
+  it('waits at the entrance, with the focus on the way in', async () => {
     html.dataset.intro = 'play'
     render(<IntroCinematic />)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(createRenderer).not.toHaveBeenCalled()
+    expect(createSound).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(enterButton())
+  })
+
+  it('starts the light scene and its soundtrack together on entering', async () => {
+    html.dataset.intro = 'play'
+    render(<IntroCinematic />)
+    fireEvent.click(enterButton())
+    expect(createSound).toHaveBeenCalledTimes(1)
     await waitFor(() => expect(createRenderer).toHaveBeenCalledTimes(1))
     expect(html.dataset.intro).toBe('play')
     expect(document.querySelector('.intro-scene canvas')).not.toBeNull()
+  })
+
+  it('enters on a click anywhere at the entrance, and only once', async () => {
+    html.dataset.intro = 'play'
+    const { container } = render(<IntroCinematic />)
+    fireEvent.click(container.querySelector('.intro')!)
+    fireEvent.click(enterButton())
+    await waitFor(() => expect(createRenderer).toHaveBeenCalledTimes(1))
+    expect(createSound).toHaveBeenCalledTimes(1)
+    expect(html.dataset.intro).toBe('play')
   })
 
   it('lets the visitor into the site when WebGL fails', async () => {
@@ -90,23 +116,36 @@ describe('IntroCinematic', () => {
     })
     html.dataset.intro = 'play'
     render(<IntroCinematic />)
+    fireEvent.click(enterButton())
+    await waitFor(() => expect(html.dataset.intro).toBeUndefined())
+    expect(sessionStorage.getItem(INTRO_STORAGE_KEY)).toBe('1')
+    expect(sound.release).toHaveBeenCalled()
+  })
+
+  it('can be skipped with the button, silencing the sound, and remembers it for the session', async () => {
+    html.dataset.intro = 'play'
+    render(<IntroCinematic />)
+    fireEvent.click(enterButton())
+    await waitFor(() => expect(createRenderer).toHaveBeenCalled())
+
+    fireEvent.click(screen.getByRole('button', { name: 'Přeskočit intro' }))
+    expect(sound.release).toHaveBeenCalledTimes(1)
     await waitFor(() => expect(html.dataset.intro).toBeUndefined())
     expect(sessionStorage.getItem(INTRO_STORAGE_KEY)).toBe('1')
   })
 
-  it('can be skipped with the button and remembers it for the session', async () => {
+  it('can be skipped straight from the entrance, without any sound', async () => {
     html.dataset.intro = 'play'
     render(<IntroCinematic />)
-    await waitFor(() => expect(createRenderer).toHaveBeenCalled())
-
     fireEvent.click(screen.getByRole('button', { name: 'Přeskočit intro' }))
     await waitFor(() => expect(html.dataset.intro).toBeUndefined())
-    expect(sessionStorage.getItem(INTRO_STORAGE_KEY)).toBe('1')
+    expect(createSound).not.toHaveBeenCalled()
   })
 
   it('can be skipped with Escape, even while the scene is still loading', async () => {
     html.dataset.intro = 'play'
     render(<IntroCinematic />)
+    fireEvent.click(enterButton())
     fireEvent.keyDown(window, { key: 'Escape' })
     await waitFor(() => expect(html.dataset.intro).toBeUndefined())
   })
@@ -115,37 +154,5 @@ describe('IntroCinematic', () => {
     const { container } = render(<IntroCinematic />)
     expect(container.querySelector('.intro-scene')?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.getByText('IndiWeb').closest('[aria-hidden="true"]')).not.toBeNull()
-  })
-
-  it('starts silent and offers the soundtrack as a toggle that does not skip the intro', async () => {
-    html.dataset.intro = 'play'
-    render(<IntroCinematic />)
-    const toggle = screen.getByRole('button', { name: 'Zvuk' })
-    expect(toggle.getAttribute('aria-pressed')).toBe('false')
-    expect(createSound).not.toHaveBeenCalled()
-
-    fireEvent.click(toggle)
-    expect(createSound).toHaveBeenCalledTimes(1)
-    expect(toggle.getAttribute('aria-pressed')).toBe('true')
-    expect(html.dataset.intro).toBe('play')
-  })
-
-  it('turns the soundtrack off again', () => {
-    html.dataset.intro = 'play'
-    render(<IntroCinematic />)
-    const toggle = screen.getByRole('button', { name: 'Zvuk' })
-    fireEvent.click(toggle)
-    fireEvent.click(toggle)
-    expect(sound.release).toHaveBeenCalledTimes(1)
-    expect(toggle.getAttribute('aria-pressed')).toBe('false')
-  })
-
-  it('lets the soundtrack ring out when the intro is skipped', async () => {
-    html.dataset.intro = 'play'
-    render(<IntroCinematic />)
-    fireEvent.click(screen.getByRole('button', { name: 'Zvuk' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Přeskočit intro' }))
-    expect(sound.release).toHaveBeenCalledTimes(1)
-    await waitFor(() => expect(html.dataset.intro).toBeUndefined())
   })
 })

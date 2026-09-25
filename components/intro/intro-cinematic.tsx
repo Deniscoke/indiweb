@@ -16,36 +16,19 @@ import { createIntroSound, type IntroSound } from './intro-sound'
 
 const SKIP_FADE_MS = 400
 
-/** Whether this browser lets a page start sound without a click (e.g. Firefox with autoplay allowed). */
-function soundMayAutoplay(): boolean {
-  const policy = (navigator as Navigator & { getAutoplayPolicy?: (type: string) => string }).getAutoplayPolicy
-  return policy?.call(navigator, 'audiocontext') === 'allowed'
-}
-
 export function IntroCinematic() {
   const rootRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const wordmarkRef = useRef<HTMLParagraphElement>(null)
+  const enterButtonRef = useRef<HTMLButtonElement>(null)
+  const enterRef = useRef<() => void>(() => {})
   const skipRef = useRef<() => void>(() => {})
   const soundRef = useRef<IntroSound | null>(null)
-  const elapsedRef = useRef<() => number>(() => 0)
-  const [soundOn, setSoundOn] = useState(false)
+  const [entered, setEntered] = useState(false)
 
   const releaseSound = (seconds?: number) => {
     soundRef.current?.release(seconds)
     soundRef.current = null
-  }
-
-  // Browsers only allow sound after a click, so the soundtrack waits for this toggle.
-  const toggleSound = () => {
-    if (soundRef.current) {
-      releaseSound(0.8)
-      setSoundOn(false)
-      return
-    }
-    soundRef.current = createIntroSound()
-    soundRef.current?.update(elapsedRef.current())
-    setSoundOn(soundRef.current !== null)
   }
 
   useEffect(() => {
@@ -57,11 +40,18 @@ export function IntroCinematic() {
 
     let frameId = 0
     let fadeTimer = 0
+    let entering = false
     let finished = false
     let skipping = false
     let unmounted = false
     let dispose = () => {}
     let resize = () => {}
+
+    // Loaded only when the intro is due (other visits never pay for it), and
+    // already while the visitor looks at the entrance, so the scene starts at once.
+    const loading = Promise.all([import('three'), import('./aperture/engine')])
+    loading.catch(() => {})
+    enterButtonRef.current?.focus({ preventScroll: true })
 
     const finish = () => {
       if (finished) return
@@ -84,9 +74,8 @@ export function IntroCinematic() {
       fadeTimer = window.setTimeout(finish, SKIP_FADE_MS)
     }
 
-    const start = async () => {
-      // Loaded only when the intro actually plays, so other visits never pay for it.
-      const [THREE, scene] = await Promise.all([import('three'), import('./aperture/engine')])
+    const play = async () => {
+      const [THREE, scene] = await loading
       if (unmounted || finished || skipping) return
 
       const renderer = new THREE.WebGLRenderer({
@@ -137,11 +126,6 @@ export function IntroCinematic() {
       window.addEventListener('resize', resize)
 
       const startedAt = performance.now()
-      elapsedRef.current = () => (performance.now() - startedAt) / 1000
-      if (soundMayAutoplay() && !soundRef.current) {
-        soundRef.current = createIntroSound()
-        setSoundOn(soundRef.current !== null)
-      }
       const render = (now: number) => {
         const elapsed = (now - startedAt) / 1000
         const time = introSceneTime(elapsed)
@@ -159,8 +143,15 @@ export function IntroCinematic() {
       frameId = requestAnimationFrame(render)
     }
 
-    // Without WebGL 2 (or if loading fails) the visitor simply lands on the site.
-    start().catch(finish)
+    enterRef.current = () => {
+      if (entering || finished || skipping) return
+      entering = true
+      // The entrance click is the gesture browsers require before a page may
+      // play sound, so the soundtrack starts together with the picture.
+      soundRef.current = createIntroSound()
+      // Without WebGL 2 (or if loading fails) the visitor simply lands on the site.
+      play().catch(finish)
+    }
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') skipRef.current()
@@ -178,32 +169,39 @@ export function IntroCinematic() {
     }
   }, [])
 
+  const enter = () => {
+    enterRef.current()
+    setEntered(true)
+  }
+
   return (
-    <div ref={rootRef} className="intro" onClick={() => skipRef.current()}>
+    // Before the intro starts a click anywhere enters it; once it plays, a click skips it.
+    <div ref={rootRef} className="intro" onClick={() => (entered ? skipRef.current() : enter())}>
       <div ref={hostRef} aria-hidden="true" className="intro-scene" />
       <p ref={wordmarkRef} aria-hidden="true" className="intro-wordmark font-display">
         <span className="intro-wordmark__text">IndiWeb</span>
       </p>
+      <div className="intro-gate" data-entered={entered || undefined} inert={entered}>
+        <span aria-hidden="true" className="intro-gate__spark" />
+        <button
+          ref={enterButtonRef}
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            enter()
+          }}
+          className="intro-gate__enter"
+        >
+          Vstoupit
+        </button>
+        <p className="font-mono text-xs text-fg-faint">se zvukem</p>
+      </div>
       <button
         type="button"
-        aria-pressed={soundOn}
         onClick={(event) => {
-          // A click anywhere else skips the intro; this one only toggles the sound.
           event.stopPropagation()
-          toggleSound()
+          skipRef.current()
         }}
-        className="intro-sound absolute bottom-6 left-6 z-10 flex items-center gap-2.5 rounded-full border border-line-strong px-5 py-2.5 text-sm text-fg-dim transition-colors hover:text-fg aria-pressed:text-fg"
-      >
-        <span aria-hidden="true" className="intro-sound__bars">
-          <span />
-          <span />
-          <span />
-        </span>
-        Zvuk
-      </button>
-      <button
-        type="button"
-        onClick={() => skipRef.current()}
         className="absolute right-6 bottom-6 z-10 rounded-full border border-line-strong px-5 py-2.5 text-sm text-fg-dim transition-colors hover:text-fg"
       >
         Přeskočit intro
