@@ -45,6 +45,7 @@ describe('voiceAgentConfig', () => {
   it('requires a server-issued token and caps daily use', () => {
     expect(config.platform_settings.auth.enable_auth).toBe(true)
     expect(config.platform_settings.call_limits.daily_limit).toBeGreaterThan(0)
+    expect(config.platform_settings.call_limits.bursting_enabled).toBe(false)
   })
 })
 
@@ -52,6 +53,6 @@ describe('VOICES', () => {
   it('offers a few distinct voices, the default one first', () => {
     expect(VOICES.length).toBeGreaterThanOrEqual(3)
     expect(new Set(VOICES.map((voice) => voice.id)).size).toBe(VOICES.length)
-    expect(VOICES[0].label).toBe('Aria')
+    expect(VOICES[0].label).toBe('Markéta')
   })
 })

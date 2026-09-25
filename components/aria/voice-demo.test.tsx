@@ -43,7 +43,7 @@ describe('VoiceDemo', () => {
   it('starts a call with a token from our server and the chosen voice', async () => {
     startVoiceCall.mockResolvedValue({ status: 'ready', token: 'conv_1' })
     render(<VoiceDemo />)
-    fireEvent.click(screen.getByRole('radio', { name: /Laura/ }))
+    fireEvent.click(screen.getByRole('radio', { name: /Katy/ }))
     fireEvent.click(screen.getByRole('button', { name: /Promluvit s Ariou/ }))
 
     await waitFor(() => expect(controls.startSession).toHaveBeenCalledTimes(1))

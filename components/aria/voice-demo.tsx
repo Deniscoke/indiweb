@@ -103,7 +103,7 @@ function VoiceDemoPanel() {
       </div>
 
       <fieldset className="mt-8 flex flex-col items-center gap-3" disabled={live || connecting}>
-        <legend className="mb-3 w-full text-center font-mono text-xs text-fg-faint">Vyberte hlas</legend>
+        <legend className="mb-3 w-full text-center font-mono text-xs text-fg-faint">Vyberte Ariin hlas</legend>
         <div className="flex flex-wrap justify-center gap-2">
           {VOICES.map((voice) => (
             <label key={voice.id} className="voice-chip" title={voice.description}>

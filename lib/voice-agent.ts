@@ -10,17 +10,18 @@ import { team } from '@/content/team'
 export type Voice = { id: string; label: string; description: string }
 
 /**
- * Voices a visitor can try, from the ElevenLabs premade library (free to use).
- * The first is Aria's own voice and the agent's default.
+ * Voices a visitor can try: native Czech professional voices from the IndiWeb
+ * ElevenLabs account, which sound far more natural in Czech than the English
+ * premade ones. Visitors hear Aria in any of them; the first is her default.
  */
 export const VOICES: Voice[] = [
-  { id: 'EXAVITQu4vr4xnSDxMaL', label: 'Aria', description: 'Klidný, vlídný ženský hlas' },
-  { id: 'FGY2WhTYpPnrIDTdsKH5', label: 'Laura', description: 'Svěží, energický ženský hlas' },
-  { id: 'Xb7hH8MSUJpSbSDYk0k2', label: 'Alice', description: 'Věcný, sebejistý ženský hlas' },
-  { id: 'onwK4e9ZLuTAKqWW03F9', label: 'Daniel', description: 'Hluboký, rozvážný mužský hlas' },
+  { id: 'Nr9bRiFsgPeaoVggMD2V', label: 'Markéta', description: 'Jasný, příjemný ženský hlas' },
+  { id: 'ULC9TU2vv6WOHN6tKxNv', label: 'Katy', description: 'Mladý, přirozený ženský hlas' },
+  { id: 'uYFJyGaibp4N2VwYQshk', label: 'Marek', description: 'Sametový, klidný mužský hlas' },
+  { id: 'pt8Kvp57SW3o4WuGqWZG', label: 'Kuba', description: 'Uvolněný mužský hlas' },
 ]
 
-/** One demo call may last this long, to keep the free credits for many visitors. */
+/** One demo call may last this long, so the credits last for many visitors. */
 export const MAX_CALL_SECONDS = 180
 /** And the agent takes at most this many calls a day. */
 const DAILY_CALL_LIMIT = 40
@@ -83,15 +84,23 @@ export function voiceAgentConfig() {
         language: 'cs',
         max_conversation_duration_message:
           'Tahle ukázka má omezenou délku, takže se musím rozloučit. Napište nám přes formulář a ozveme se. Hezký den!',
-        prompt: { prompt: voiceAgentPrompt(), temperature: 0.4 },
+        prompt: { prompt: voiceAgentPrompt(), llm: 'claude-haiku-4-5', temperature: 0.4 },
       },
-      tts: { voice_id: VOICES[0].id, model_id: 'eleven_flash_v2_5' },
+      // Tuned for Markéta: steady but alive, a touch slower than default.
+      tts: {
+        voice_id: VOICES[0].id,
+        model_id: 'eleven_turbo_v2_5',
+        stability: 0.7,
+        similarity_boost: 0.8,
+        speed: 0.96,
+      },
       conversation: { max_duration_seconds: MAX_CALL_SECONDS },
     },
     platform_settings: {
       // Conversations need a token from our server, which holds the API key.
       auth: { enable_auth: true },
-      call_limits: { daily_limit: DAILY_CALL_LIMIT, agent_concurrency_limit: 3 },
+      // No bursting: past the limits calls are refused, never billed at the burst rate.
+      call_limits: { daily_limit: DAILY_CALL_LIMIT, agent_concurrency_limit: 3, bursting_enabled: false },
       // The browser may pick a voice; it may never rewrite what the agent says.
       overrides: {
         conversation_config_override: {
