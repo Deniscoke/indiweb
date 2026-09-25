@@ -2,16 +2,13 @@
 import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { AriaTeaser } from '@/components/home/aria-teaser'
-import { aria } from '@/content/aria'
 
-it('presents Aria as our own product with links to its page and demo', () => {
-  const { container } = render(<AriaTeaser />)
+it('presents Aria as our own product with a link to its page, never sending visitors away', () => {
+  const { container } = render(<AriaTeaser voiceDemo />)
   expect(container.querySelector('section#aria')).not.toBeNull()
   expect(screen.getByRole('heading', { level: 2, name: 'Aria — náš AI hlasový agent' })).toBeTruthy()
   expect(screen.getByRole('link', { name: 'Více o Arii' }).getAttribute('href')).toBe('/aria')
-  const demo = screen.getByRole('link', { name: /Vyzkoušet Ariu/ })
-  expect(demo.getAttribute('href')).toBe(aria.url)
-  expect(demo.getAttribute('target')).toBe('_blank')
+  expect(container.querySelector('a[target="_blank"]')).toBeNull()
 })
 
 it('shows the speaking dot grid next to the pitch', () => {
@@ -19,10 +16,15 @@ it('shows the speaking dot grid next to the pitch', () => {
   expect(container.querySelector('canvas[aria-hidden="true"]')).not.toBeNull()
 })
 
-it('offers the live call only once the voice demo is configured', () => {
-  const { unmount } = render(<AriaTeaser />)
+it('lets visitors try Aria right here once the voice demo is configured', () => {
+  const { container } = render(<AriaTeaser voiceDemo />)
+  const tryIt = screen.getByRole('link', { name: 'Vyzkoušet Ariu' })
+  const target = container.querySelector(tryIt.getAttribute('href') ?? '-')
+  expect(target?.querySelector('button')?.textContent).toMatch(/Promluvit s Ariou/)
+})
+
+it('offers no call and no try-it link before the voice demo is configured', () => {
+  render(<AriaTeaser />)
   expect(screen.queryByRole('button', { name: /Promluvit s Ariou/ })).toBeNull()
-  unmount()
-  render(<AriaTeaser voiceDemo />)
-  expect(screen.getByRole('button', { name: /Promluvit s Ariou/ })).toBeTruthy()
+  expect(screen.queryByRole('link', { name: 'Vyzkoušet Ariu' })).toBeNull()
 })

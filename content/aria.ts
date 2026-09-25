@@ -6,7 +6,6 @@ export const aria: Product = {
   tagline: 'AI hlasový agent, který vezme každý telefon.',
   description:
     'Aria za vás 24 hodin denně zvedá telefony — odpovídá na dotazy, přijímá rezervace a zapisuje vzkazy. Vy se věnujete zákazníkům na místě a žádný hovor nepropadne.',
-  url: 'https://aria-eta-five.vercel.app',
   capabilities: [
     'Zvedá telefony 24/7, i když máte plné ruce práce',
     'Přijímá rezervace termínů a stolů',

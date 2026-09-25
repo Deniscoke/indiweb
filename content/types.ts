@@ -40,7 +40,6 @@ export type Product = {
   headline: string
   tagline: string
   description: string
-  url: string
   capabilities: string[]
   audience: string[]
   rollout: Step[]

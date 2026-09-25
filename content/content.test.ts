@@ -80,10 +80,6 @@ describe('team', () => {
 })
 
 describe('aria', () => {
-  it('points to an https url', () => {
-    expect(isHttps(aria.url)).toBe(true)
-  })
-
   it('describes capabilities, audience and a four-step rollout', () => {
     expect(aria.capabilities.length).toBeGreaterThanOrEqual(3)
     expect(aria.audience.length).toBeGreaterThanOrEqual(3)

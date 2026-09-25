@@ -3,14 +3,35 @@ import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
 import { StepList } from '@/components/ui/step-list'
 import { aria } from '@/content/aria'
+import { site } from '@/content/site'
 import { ScrambleText } from './scramble-text'
+import { VoiceDemo } from './voice-demo'
 import { VoiceDots } from './voice-dots'
 
 const INQUIRY_HREF = '/?sluzba=ai#kontakt'
+const TRY_ARIA_ID = 'vyzkouset-ariu'
 
-export function AriaPage() {
+/** What search engines learn about Aria: a service IndiWeb provides. */
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: aria.name,
+  serviceType: 'AI hlasový agent',
+  description: aria.description,
+  provider: { '@type': 'Organization', name: site.name, url: site.url, email: site.email },
+  areaServed: ['CZ', 'SK'],
+  availableLanguage: ['cs', 'sk'],
+}
+
+/** `voiceDemo`: the live call with Aria is set up, so visitors can try her right on the page. */
+export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Escaped so the JSON can never close the script tag.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA).replace(/</g, '\\u003c') }}
+      />
       <section aria-labelledby="aria-nadpis">
         <Container className="grid min-h-svh items-center gap-16 pt-36 pb-20 lg:grid-cols-[1.1fr_1fr]">
           <div>
@@ -27,12 +48,16 @@ export function AriaPage() {
             <p className="mt-6 max-w-xl text-lg text-fg-dim">{aria.description}</p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href={INQUIRY_HREF}>Chci Ariu pro svou firmu</ButtonLink>
-              <ButtonLink href={aria.url} external variant="ghost" withArrow>
-                Vyzkoušet Ariu
-              </ButtonLink>
+              {voiceDemo && (
+                <ButtonLink href={`#${TRY_ARIA_ID}`} variant="ghost">
+                  Vyzkoušet Ariu
+                </ButtonLink>
+              )}
             </div>
           </div>
-          <VoiceDots />
+          <div id={TRY_ARIA_ID} className="scroll-mt-28">
+            {voiceDemo ? <VoiceDemo /> : <VoiceDots />}
+          </div>
         </Container>
       </section>
 

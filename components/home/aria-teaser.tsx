@@ -11,6 +11,7 @@ import { aria } from '@/content/aria'
 import { fitsInView, gsap, useScene } from '@/lib/motion'
 
 const FLOODED = 'is-flooded'
+const TRY_ARIA_ID = 'vyzkouset-ariu'
 const DRY = 'circle(0% at 72% 50%)'
 const WET = 'circle(75% at 72% 50%)'
 
@@ -88,12 +89,15 @@ export function AriaTeaser({ voiceDemo = false }: { voiceDemo?: boolean }) {
               <BulletList items={aria.capabilities.slice(0, 3)} className="mt-8" />
               <div className="mt-12 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink href="/aria">Více o Arii</ButtonLink>
-                <ButtonLink href={aria.url} external variant="ghost" withArrow>
-                  Vyzkoušet Ariu
-                </ButtonLink>
+                {/* The call is right here; on phones it sits below the pitch, so this jumps to it. */}
+                {voiceDemo && (
+                  <ButtonLink href={`#${TRY_ARIA_ID}`} variant="ghost">
+                    Vyzkoušet Ariu
+                  </ButtonLink>
+                )}
               </div>
             </div>
-            <div data-aria-dots>
+            <div id={TRY_ARIA_ID} data-aria-dots className="scroll-mt-28">
               {voiceDemo ? <VoiceDemo /> : <VoiceDots />}
             </div>
           </div>
