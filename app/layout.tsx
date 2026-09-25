@@ -5,9 +5,12 @@ import { Footer } from '@/components/layout/footer'
 import { IntroCinematic } from '@/components/intro/intro-cinematic'
 import { Header } from '@/components/layout/header'
 import { PointerLight } from '@/components/light/pointer-light'
+import { SmoothScroll } from '@/components/story/smooth-scroll'
 import { site } from '@/content/site'
 import { INTRO_BOOT_SCRIPT } from '@/lib/intro'
+import 'lenis/dist/lenis.css'
 import './globals.css'
+import './story.css'
 
 const bricolage = Bricolage_Grotesque({
   subsets: ['latin', 'latin-ext'],
@@ -51,6 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="bg-bg font-sans text-fg antialiased">
         <IntroCinematic />
+        <SmoothScroll />
         <PointerLight />
         <div aria-hidden="true" className="ambient-grain" />
         <a

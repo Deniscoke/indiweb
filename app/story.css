@@ -1,0 +1,146 @@
+/* Scroll story layouts. Each "staged" state is switched on by GSAP (via a data
+   attribute) only while the desktop story runs, so the static layout remains the
+   baseline for phones, reduced motion and no-JS visitors. */
+
+/* Scene 2 — service panels stacked like frames on a pinned stage. */
+.services-stage[data-staged] {
+  display: block;
+  position: relative;
+  height: min(80vh, 48rem);
+}
+
+.services-stage[data-staged] .service-panel {
+  position: absolute;
+  top: calc(var(--panel-index) * 4.5rem);
+  left: calc(var(--panel-index) * 10%);
+  width: min(56rem, 68%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  column-gap: 2.5rem;
+  align-content: start;
+  transform-origin: 50% 0;
+  box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.9);
+}
+
+.services-stage[data-staged] .service-panel > * {
+  grid-column: 1;
+}
+
+/* On the stage the points become a caption box in the frame's corner, like a comic caption. */
+.services-stage[data-staged] .service-caption {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: end;
+  margin: 0;
+  box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.9);
+}
+
+/* Scene 3 — Aria's lilac light floods the section. The layer stays clipped to
+   nothing unless the story runs, so the static section is the usual dark one. */
+.aria-scene {
+  position: relative;
+  isolation: isolate;
+  transition: color 0.5s ease;
+}
+
+.aria-flood {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 72% 50%, rgb(255 255 255 / 0.55), transparent 38%),
+    radial-gradient(circle at 72% 50%, var(--color-accent-strong), var(--color-accent) 45%, #a77ee6 100%);
+  clip-path: circle(0% at 72% 50%);
+}
+
+.aria-scene.is-flooded {
+  color: var(--color-bg);
+}
+
+.aria-scene.is-flooded :is(.aria-scene__dim, .text-fg-dim) {
+  color: rgb(0 0 0 / 0.72);
+}
+
+.aria-scene.is-flooded :is(ul span[aria-hidden], .via-accent) {
+  background: var(--color-bg);
+  box-shadow: none;
+}
+
+.aria-scene.is-flooded .border-line {
+  border-color: rgb(0 0 0 / 0.2);
+}
+
+.aria-scene.is-flooded canvas {
+  color: var(--color-bg);
+}
+
+.aria-scene.is-flooded a[class*='border-line-strong'] {
+  border-color: rgb(0 0 0 / 0.45);
+  color: var(--color-bg);
+}
+
+/* Scene 5 — the steps laid out as one long road that the pinned section travels. */
+.process-line {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-strong) 70%, #ffffff);
+  box-shadow: 0 0 14px 1px rgb(217 184 255 / 0.55);
+  transform-origin: 0 50%;
+}
+
+.process-track[data-staged] .process-line {
+  display: block;
+}
+
+.process-track[data-staged] ol {
+  display: flex;
+  gap: 5vw;
+  width: max-content;
+}
+
+.process-track[data-staged] li {
+  width: min(34rem, 40vw);
+  padding-top: 2.5rem;
+}
+
+.process-track[data-staged] li > p[aria-hidden] {
+  font-size: clamp(4.5rem, 9vw, 8.5rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.process-track[data-staged] li h3 {
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+}
+
+/* Scene 4 — depth for the projects flying in. */
+.project-gallery {
+  perspective: 1800px;
+}
+
+/* Scene 6 — shards of light bursting from the closing line. Invisible until the
+   desktop story animates them. */
+.finale-shards {
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  pointer-events: none;
+}
+
+.finale-shard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--shard-length);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-accent-strong), #ffffff);
+  box-shadow: 0 0 10px rgb(217 184 255 / 0.7);
+  transform-origin: 0 50%;
+  opacity: 0;
+}

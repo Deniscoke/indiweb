@@ -5,7 +5,6 @@ import { useReducedMotion } from '@/lib/use-reduced-motion'
 
 const COLUMNS = 36
 const ROWS = 11
-const DOT_COLOR = [217, 184, 255] as const
 
 /**
  * Loudness (0–1) of the simulated voice at horizontal position x (0–1) and time t:
@@ -22,7 +21,10 @@ export function voiceLevel(x: number, t: number): number {
   return Math.min(1, Math.max(0, envelope * speech * phrase))
 }
 
-/** A grid of dots that swells like a voice speaking — Aria's visual signature. */
+/**
+ * A grid of dots that swells like a voice speaking — Aria's visual signature.
+ * The dots take the canvas's CSS colour, so a section can recolour them.
+ */
 export function VoiceDots() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const reducedMotion = useReducedMotion()
@@ -47,6 +49,8 @@ export function VoiceDots() {
       const gapX = width / COLUMNS
       const gapY = height / ROWS
       const t = time / 1000
+      // The dots take the canvas's CSS colour, so a section can recolour them.
+      context.fillStyle = getComputedStyle(canvas).color
       for (let col = 0; col < COLUMNS; col++) {
         const level = voiceLevel((col + 0.5) / COLUMNS, t)
         for (let row = 0; row < ROWS; row++) {
@@ -54,7 +58,7 @@ export function VoiceDots() {
           const distance = Math.abs(row - (ROWS - 1) / 2) / ((ROWS - 1) / 2)
           const lit = Math.max(0, Math.min(1, (level * 1.6 - distance * 0.85) * 2.6))
           const radius = 1.2 + lit * Math.min(gapX, gapY) * 0.26
-          context.fillStyle = `rgba(${DOT_COLOR.join(',')},${0.12 + lit * 0.88})`
+          context.globalAlpha = 0.12 + lit * 0.88
           context.beginPath()
           context.arc((col + 0.5) * gapX, (row + 0.5) * gapY, radius, 0, Math.PI * 2)
           context.fill()
@@ -85,5 +89,5 @@ export function VoiceDots() {
     }
   }, [reducedMotion])
 
-  return <canvas ref={canvasRef} aria-hidden="true" className="block aspect-[36/11] w-full" />
+  return <canvas ref={canvasRef} aria-hidden="true" className="block aspect-[36/11] w-full text-accent" />
 }

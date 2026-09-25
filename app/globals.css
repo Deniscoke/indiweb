@@ -87,6 +87,34 @@
     );
   }
 
+  /* Scroll story — scene 1: the ring of light the camera flies through. */
+  .aperture-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    width: 60vmin;
+    height: 60vmin;
+    margin: -30vmin 0 0 -30vmin;
+    border-radius: 9999px;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.85),
+      0 0 24px 4px rgb(236 235 240 / 0.45),
+      0 0 90px 20px rgb(217 184 255 / 0.25),
+      inset 0 0 40px 6px rgb(217 184 255 / 0.3);
+  }
+
+  .aperture-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, #ffffff, rgb(217 184 255 / 0.6) 40%, transparent 80%);
+  }
+
   /* Text lit by the pointer light: bright where the light is, dim elsewhere.
      The gradient is fixed to the viewport so it tracks the pointer everywhere. */
   .lit {
