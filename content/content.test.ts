@@ -4,6 +4,7 @@ import { processSteps } from '@/content/process'
 import { projects } from '@/content/projects'
 import { services } from '@/content/services'
 import { hero, navigation, site } from '@/content/site'
+import { splatShowcase } from '@/content/splat'
 import { team } from '@/content/team'
 import { SERVICE_IDS } from '@/content/types'
 
@@ -90,5 +91,19 @@ describe('aria', () => {
 describe('process', () => {
   it('has four steps', () => {
     expect(processSteps).toHaveLength(4)
+  })
+})
+
+describe('splat showcase', () => {
+  it('embeds a Splatoo presentation over https', () => {
+    const embed = new URL(splatShowcase.scene.embedUrl)
+    expect(embed.protocol).toBe('https:')
+    expect(embed.hostname).toBe('app.splatoo.com')
+    expect(embed.searchParams.get('embed')).toBe('1')
+    expect(isHttps(splatShowcase.scene.url)).toBe(true)
+  })
+
+  it('names what we build together with Splatoo', () => {
+    expect(splatShowcase.collaboration.length).toBeGreaterThanOrEqual(3)
   })
 })

@@ -5,6 +5,7 @@ import { aria } from '@/content/aria'
 import { processSteps } from '@/content/process'
 import { services } from '@/content/services'
 import { site } from '@/content/site'
+import { splatShowcase } from '@/content/splat'
 import { team } from '@/content/team'
 
 export type Voice = { id: string; label: string; description: string }
@@ -57,6 +58,10 @@ ${site.name} je malé studio tří kluků, kteří tvoří weby na míru, 3D a A
 
 ## Služby
 ${offer}
+
+## 3D a spolupráce se Splatoo
+${bullets(splatShowcase.collaboration)}
+Na tomto webu je živá 3D prohlídka sálu zámku ve Žďáru nad Sázavou (sekce „3D“), kterou si návštěvník může sám projít.
 
 ## Aria (produkt)
 ${aria.description}

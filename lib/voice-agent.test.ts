@@ -3,6 +3,7 @@ import { aria } from '@/content/aria'
 import { processSteps } from '@/content/process'
 import { services } from '@/content/services'
 import { site } from '@/content/site'
+import { splatShowcase } from '@/content/splat'
 import { team } from '@/content/team'
 import { VOICES, voiceAgentConfig, voiceAgentPrompt } from '@/lib/voice-agent'
 
@@ -18,6 +19,8 @@ describe('voiceAgentPrompt', () => {
     for (const member of team) expect(prompt).toContain(member.name)
     for (const capability of aria.capabilities) expect(prompt).toContain(capability)
     expect(prompt).toContain(site.email)
+    for (const item of splatShowcase.collaboration) expect(prompt).toContain(item)
+    expect(prompt).toContain('Splatoo')
   })
 
   it('keeps the agent short-spoken, on topic and honest', () => {

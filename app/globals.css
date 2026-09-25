@@ -430,3 +430,10 @@ html[data-intro="play"] body {
     animation: none;
   }
 }
+
+/* The live 3D scene sits in a frame lit from below, like the glass rim in the intro. */
+.splat-frame {
+  box-shadow:
+    0 0 0 1px rgb(217 184 255 / 0.08),
+    0 40px 120px -40px rgb(217 184 255 / 0.35);
+}
