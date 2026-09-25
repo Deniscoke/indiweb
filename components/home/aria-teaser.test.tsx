@@ -18,3 +18,11 @@ it('shows the speaking dot grid next to the pitch', () => {
   const { container } = render(<AriaTeaser />)
   expect(container.querySelector('canvas[aria-hidden="true"]')).not.toBeNull()
 })
+
+it('offers the live call only once the voice demo is configured', () => {
+  const { unmount } = render(<AriaTeaser />)
+  expect(screen.queryByRole('button', { name: /Promluvit s Ariou/ })).toBeNull()
+  unmount()
+  render(<AriaTeaser voiceDemo />)
+  expect(screen.getByRole('button', { name: /Promluvit s Ariou/ })).toBeTruthy()
+})

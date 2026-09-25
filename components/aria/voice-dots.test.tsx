@@ -23,3 +23,10 @@ it('is a decorative canvas that survives a missing 2D context', () => {
   const { container } = render(<VoiceDots />)
   expect(container.querySelector('canvas')?.getAttribute('aria-hidden')).toBe('true')
 })
+
+it('follows a real voice when given its loudness: silent is small, loud is big', () => {
+  const quiet = voiceLevel(0.5, 3, 0)
+  const loud = voiceLevel(0.5, 3, 1)
+  expect(loud).toBeGreaterThan(quiet * 3)
+  expect(voiceLevel(0.5, 3, 5)).toBeLessThanOrEqual(1)
+})

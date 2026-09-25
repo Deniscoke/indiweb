@@ -11,7 +11,8 @@ export default function HomePage() {
     <>
       <Hero />
       <Services />
-      <AriaTeaser />
+      {/* The live call appears once ElevenLabs is configured (see .env.example). */}
+      <AriaTeaser voiceDemo={Boolean(process.env.ELEVENLABS_API_KEY && process.env.ELEVENLABS_AGENT_ID)} />
       <Projects />
       <Process />
       <Team />

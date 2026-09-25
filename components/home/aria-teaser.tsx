@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { ScrambleText } from '@/components/aria/scramble-text'
+import { VoiceDemo } from '@/components/aria/voice-demo'
 import { VoiceDots } from '@/components/aria/voice-dots'
 import { BulletList } from '@/components/ui/bullet-list'
 import { ButtonLink } from '@/components/ui/button-link'
@@ -13,7 +14,8 @@ const FLOODED = 'is-flooded'
 const DRY = 'circle(0% at 72% 50%)'
 const WET = 'circle(75% at 72% 50%)'
 
-export function AriaTeaser() {
+/** `voiceDemo`: the live call with Aria is set up (ElevenLabs key and agent), so visitors can try her. */
+export function AriaTeaser({ voiceDemo = false }: { voiceDemo?: boolean }) {
   const ref = useRef<HTMLElement>(null)
 
   // Scene 3 — Aria's voice floods the screen: a pool of the intro's lilac light
@@ -59,7 +61,6 @@ export function AriaTeaser() {
         },
       })
       .fromTo('[data-flood]', { clipPath: DRY }, { clipPath: WET, ease: 'power2.in', duration: 0.4 }, 0)
-      .fromTo('[data-aria-dots]', { scale: 0.85 }, { scale: 1.12, ease: 'none', duration: 1 }, 0)
       .fromTo('[data-aria-copy]', { y: 40 }, { y: -20, ease: 'none', duration: 1 }, 0)
       .to('[data-flood]', { clipPath: DRY, ease: 'power2.out', duration: 0.2 }, 0.8)
     return () => setFlooded(false)
@@ -93,7 +94,7 @@ export function AriaTeaser() {
               </div>
             </div>
             <div data-aria-dots>
-              <VoiceDots />
+              {voiceDemo ? <VoiceDemo /> : <VoiceDots />}
             </div>
           </div>
         </div>
