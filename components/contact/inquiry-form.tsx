@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
   startTransition,
@@ -11,7 +12,7 @@ import {
   type ReactNode,
 } from 'react'
 import { sendInquiry } from '@/app/actions/send-inquiry'
-import { site } from '@/content/site'
+import { PRIVACY_HREF, site } from '@/content/site'
 import { cn } from '@/lib/cn'
 import {
   INITIAL_INQUIRY_STATE,
@@ -219,6 +220,13 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
         >
           {pending ? 'Odesílám…' : 'Odeslat poptávku'}
         </button>
+        <p className="mt-4 max-w-sm text-xs text-fg-faint">
+          Vaše údaje použijeme jen k odpovědi na poptávku. Více v dokumentu{' '}
+          <Link href={PRIVACY_HREF} className="underline underline-offset-4 hover:text-fg">
+            Zásady ochrany osobních údajů
+          </Link>
+          .
+        </p>
       </div>
 
       <div aria-live="polite">

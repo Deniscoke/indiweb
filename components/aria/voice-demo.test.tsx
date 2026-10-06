@@ -122,3 +122,8 @@ describe('VoiceDemo', () => {
     expect(callButton()).toBeTruthy()
   })
 })
+
+it('links to how the call is processed', () => {
+  render(<VoiceDemo />)
+  expect(screen.getByRole('link', { name: 'Jak zpracováváme hlas' }).getAttribute('href')).toBe('/ochrana-osobnich-udaju')
+})

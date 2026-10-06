@@ -29,6 +29,7 @@ export const navigation: NavItem[] = [
 ]
 
 export const contactHref = '/#kontakt'
+export const PRIVACY_HREF = '/ochrana-osobnich-udaju'
 
 export const hero = {
   /** Three lines spread across the hero, lit by the pointer. */

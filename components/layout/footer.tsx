@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Container } from '@/components/ui/container'
-import { navigation, site } from '@/content/site'
+import { navigation, PRIVACY_HREF, site } from '@/content/site'
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -23,6 +23,11 @@ export function Footer() {
               <a href={`mailto:${site.email}`} className="inline-block py-3 hover:text-fg">
                 {site.email}
               </a>
+            </li>
+            <li>
+              <Link href={PRIVACY_HREF} className="inline-block py-3 hover:text-fg">
+                Ochrana osobních údajů
+              </Link>
             </li>
           </ul>
         </nav>

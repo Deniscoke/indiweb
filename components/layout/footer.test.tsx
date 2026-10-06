@@ -10,3 +10,8 @@ it('shows the current year and the contact e-mail', () => {
     'mailto:info.indiweb@gmail.com',
   )
 })
+
+it('links to the privacy page', () => {
+  render(<Footer />)
+  expect(screen.getByRole('link', { name: 'Ochrana osobních údajů' }).getAttribute('href')).toBe('/ochrana-osobnich-udaju')
+})

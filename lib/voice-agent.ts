@@ -26,6 +26,11 @@ export const VOICES: Voice[] = [
 export const MAX_CALL_SECONDS = 180
 /** And the agent takes at most this many calls a day. */
 const DAILY_CALL_LIMIT = 40
+/**
+ * Transcripts are kept this long (so the team can see what visitors ask), then
+ * ElevenLabs deletes them. Audio is never kept. The privacy page states both.
+ */
+export const TRANSCRIPT_RETENTION_DAYS = 30
 
 const FIRST_MESSAGE =
   'Dobrý den, tady Aria z IndiWebu. Jsem hlasová AI asistentka a ráda vám povím, co děláme. S čím vám můžu pomoct?'
@@ -106,6 +111,8 @@ export function voiceAgentConfig() {
       auth: { enable_auth: true },
       // No bursting: past the limits calls are refused, never billed at the burst rate.
       call_limits: { daily_limit: DAILY_CALL_LIMIT, agent_concurrency_limit: 3, bursting_enabled: false },
+      // No recording of the visitor's voice; transcripts expire.
+      privacy: { record_voice: false, delete_audio: true, retention_days: TRANSCRIPT_RETENTION_DAYS },
       // The browser may pick a voice; it may never rewrite what the agent says.
       overrides: {
         conversation_config_override: {

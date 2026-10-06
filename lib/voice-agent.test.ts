@@ -5,7 +5,7 @@ import { services } from '@/content/services'
 import { site } from '@/content/site'
 import { splatShowcase } from '@/content/splat'
 import { team } from '@/content/team'
-import { VOICES, voiceAgentConfig, voiceAgentPrompt } from '@/lib/voice-agent'
+import { TRANSCRIPT_RETENTION_DAYS, VOICES, voiceAgentConfig, voiceAgentPrompt } from '@/lib/voice-agent'
 
 describe('voiceAgentPrompt', () => {
   const prompt = voiceAgentPrompt()
@@ -43,6 +43,15 @@ describe('voiceAgentConfig', () => {
     const overrides = config.platform_settings.overrides.conversation_config_override
     expect(overrides.tts).toEqual({ voice_id: true })
     expect(overrides.agent).toEqual({ first_message: false, language: false, prompt: { prompt: false } })
+  })
+
+  it('keeps no recording of the visitor’s voice and forgets transcripts after a month', () => {
+    expect(config.platform_settings.privacy).toMatchObject({
+      record_voice: false,
+      delete_audio: true,
+      retention_days: TRANSCRIPT_RETENTION_DAYS,
+    })
+    expect(TRANSCRIPT_RETENTION_DAYS).toBeLessThanOrEqual(30)
   })
 
   it('requires a server-issued token and caps daily use', () => {

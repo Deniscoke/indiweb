@@ -127,4 +127,9 @@ describe('InquiryFormWithParams', () => {
     render(<InquiryFormWithParams />)
     expect(select().value).toBe('')
   })
+
+  it('tells, next to the send button, how the inquiry is handled', () => {
+    render(<InquiryForm />)
+    expect(screen.getByRole('link', { name: 'Zásady ochrany osobních údajů' }).getAttribute('href')).toBe('/ochrana-osobnich-udaju')
+  })
 })

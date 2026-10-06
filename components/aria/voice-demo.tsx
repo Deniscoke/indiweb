@@ -2,8 +2,10 @@
 
 import type { VoiceConversation } from '@elevenlabs/client'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { startVoiceCall } from '@/app/actions/start-voice-call'
 import { VoiceDots } from '@/components/aria/voice-dots'
+import { PRIVACY_HREF } from '@/content/site'
 import { cn } from '@/lib/cn'
 import { MAX_CALL_SECONDS, VOICES } from '@/lib/voice-agent'
 
@@ -133,7 +135,10 @@ export function VoiceDemo() {
       </fieldset>
 
       <p className="mt-6 text-center font-mono text-[0.7rem] leading-relaxed text-fg-faint">
-        Živá ukázka přes ElevenLabs · nejvýš {MAX_CALL_SECONDS / 60} minuty · potřebuje mikrofon
+        Živá ukázka přes ElevenLabs · nejvýš {MAX_CALL_SECONDS / 60} minuty · potřebuje mikrofon ·{' '}
+        <Link href={PRIVACY_HREF} className="underline underline-offset-4 hover:text-fg">
+          Jak zpracováváme hlas
+        </Link>
       </p>
     </div>
   )
