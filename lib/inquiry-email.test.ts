@@ -12,7 +12,7 @@ const inquiry: Inquiry = {
 describe('buildInquiryEmail', () => {
   it('sends to our inbox and replies go to the visitor', () => {
     expect(buildInquiryEmail(inquiry, 'info.indiweb@gmail.com')).toEqual({
-      from: 'IndiWeb <onboarding@resend.dev>',
+      from: 'IndiWeb <poptavky@indiweb.cz>',
       to: ['info.indiweb@gmail.com'],
       replyTo: 'jana@example.cz',
       subject: 'Nová poptávka — Jana Nováková (AI agent)',

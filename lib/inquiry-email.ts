@@ -1,9 +1,9 @@
 import { INQUIRY_SERVICE_LABELS } from '@/lib/inquiry-options'
 import type { Inquiry } from '@/lib/inquiry-schema'
 
-// Resend's shared test sender; it can deliver only to the Resend account owner
-// (info.indiweb@gmail.com). Switch to a verified domain once indiweb.cz exists.
-export const INQUIRY_EMAIL_FROM = 'IndiWeb <onboarding@resend.dev>'
+// Sent from indiweb.cz, verified in Resend (SPF and DKIM in the domain's DNS on
+// Vercel). Replies go straight to the visitor through replyTo.
+export const INQUIRY_EMAIL_FROM = 'IndiWeb <poptavky@indiweb.cz>'
 
 export type InquiryEmail = {
   from: string
