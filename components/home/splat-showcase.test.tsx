@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { act, render, screen } from '@testing-library/react'
+import { expect, it, vi } from 'vitest'
 import { SplatShowcase } from '@/components/home/splat-showcase'
 import { splatShowcase } from '@/content/splat'
 
@@ -30,4 +30,25 @@ it('opens the full presentation in a new window', () => {
   const link = screen.getByRole('link', { name: /Otevřít ve Splatoo/ })
   expect(link.getAttribute('href')).toBe(splatShowcase.scene.url)
   expect(link.getAttribute('target')).toBe('_blank')
+})
+
+it('loads the heavy 3D embed only as the visitor approaches it', () => {
+  let reveal: (entries: { isIntersecting: boolean }[]) => void = () => {}
+  vi.stubGlobal(
+    'IntersectionObserver',
+    vi.fn(
+      class {
+        constructor(callback: typeof reveal) {
+          reveal = callback
+        }
+        observe() {}
+        disconnect() {}
+      },
+    ),
+  )
+  const { container } = render(<SplatShowcase />)
+  expect(container.querySelector('iframe')).toBeNull()
+  act(() => reveal([{ isIntersecting: true }]))
+  expect(container.querySelector('iframe')?.getAttribute('src')).toBe(splatShowcase.scene.embedUrl)
+  vi.unstubAllGlobals()
 })

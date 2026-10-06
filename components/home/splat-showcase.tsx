@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BulletList } from '@/components/ui/bullet-list'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
@@ -8,8 +8,29 @@ import { SectionHeading } from '@/components/ui/section-heading'
 import { splatShowcase } from '@/content/splat'
 import { gsap, useScene } from '@/lib/motion'
 
+/** Starts loading the embed this far ahead, so it is ready by the time it is seen. */
+const PRELOAD_MARGIN = '600px 0px'
+
 export function SplatShowcase() {
   const ref = useRef<HTMLElement>(null)
+  // The embed pulls in over 1 MB of Splatoo's viewer, so it waits until the
+  // visitor nears it (browsers without IntersectionObserver load it at once).
+  const [near, setNear] = useState(() => typeof window !== 'undefined' && !('IntersectionObserver' in window))
+
+  useEffect(() => {
+    const frame = ref.current?.querySelector('[data-portal]')
+    if (near || !frame) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        setNear(true)
+        observer.disconnect()
+      },
+      { rootMargin: PRELOAD_MARGIN },
+    )
+    observer.observe(frame)
+    return () => observer.disconnect()
+  }, [near])
 
   // A portal into the room: on desktop the scene opens from a small rounded
   // window to the full frame as it scrolls into view. Phones get a rise-in.
@@ -48,15 +69,20 @@ export function SplatShowcase() {
           data-portal
           className="splat-frame relative mt-12 aspect-[4/5] overflow-hidden border border-line-strong bg-bg-soft sm:mt-20 sm:aspect-video"
         >
-          <iframe
-            src={scene.embedUrl}
-            title={scene.title}
-            loading="lazy"
-            allow="fullscreen"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="absolute inset-0 h-full w-full border-0"
-          />
+          {near ? (
+            <iframe
+              src={scene.embedUrl}
+              title={scene.title}
+              loading="lazy"
+              allow="fullscreen"
+              referrerPolicy="strict-origin-when-cross-origin"
+              className="absolute inset-0 h-full w-full border-0"
+            />
+          ) : (
+            <p className="absolute inset-0 grid place-items-center font-mono text-xs text-fg-faint">
+              Načítám 3D prohlídku…
+            </p>
+          )}
         </div>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[1fr_auto] md:items-end">

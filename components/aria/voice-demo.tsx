@@ -1,12 +1,7 @@
 'use client'
 
-import {
-  ConversationProvider,
-  useConversationControls,
-  useConversationMode,
-  useConversationStatus,
-} from '@elevenlabs/react'
-import { useCallback, useRef, useState } from 'react'
+import type { VoiceConversation } from '@elevenlabs/client'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { startVoiceCall } from '@/app/actions/start-voice-call'
 import { VoiceDots } from '@/components/aria/voice-dots'
 import { cn } from '@/lib/cn'
@@ -19,35 +14,44 @@ const NOTICES = {
   failed: 'Hovor se nepodařilo spojit. Zkontrolujte mikrofon a zkuste to znovu.',
 } as const
 
-/** Try Aria live: a voice call with IndiWeb's own agent, right in the browser. */
-export function VoiceDemo() {
-  return (
-    <ConversationProvider>
-      <VoiceDemoPanel />
-    </ConversationProvider>
-  )
-}
+type CallState = 'idle' | 'connecting' | 'connected'
 
-function VoiceDemoPanel() {
-  const { startSession, endSession, getOutputVolume } = useConversationControls()
-  const { status } = useConversationStatus()
-  const { isSpeaking } = useConversationMode()
+const noticeFor = (message: string) =>
+  /permission|microphone|NotAllowed/i.test(message) ? NOTICES.microphone : NOTICES.failed
+
+/**
+ * Try Aria live: a voice call with IndiWeb's own agent, right in the browser.
+ * The ElevenLabs SDK (with WebRTC, ~600 KB) is downloaded only when a visitor
+ * starts a call, so the page itself stays light.
+ */
+export function VoiceDemo() {
   const [voiceId, setVoiceId] = useState(VOICES[0].id)
-  const [requesting, setRequesting] = useState(false)
+  const [call, setCall] = useState<CallState>('idle')
+  const [speaking, setSpeaking] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
   const [caption, setCaption] = useState<string | null>(null)
+  const session = useRef<VoiceConversation | null>(null)
   const smoothed = useRef(0)
 
-  const live = status === 'connected'
-  const connecting = requesting || status === 'connecting'
+  const live = call === 'connected'
+  const connecting = call === 'connecting'
+
+  // Hang up if the visitor leaves the page mid-call.
+  useEffect(() => () => void session.current?.endSession(), [])
 
   // The dots follow Aria's actual voice while she talks, eased so they breathe rather than flicker.
   const loudness = useCallback(() => {
-    if (!live) return undefined
-    const target = Math.min(1, getOutputVolume() * 3.2)
+    if (!live || !session.current) return undefined
+    const target = Math.min(1, session.current.getOutputVolume() * 3.2)
     smoothed.current += (target - smoothed.current) * 0.3
     return smoothed.current
-  }, [live, getOutputVolume])
+  }, [live])
+
+  const ended = () => {
+    session.current = null
+    setCall('idle')
+    setSpeaking(false)
+  }
 
   const start = async () => {
     setNotice(null)
@@ -56,30 +60,35 @@ function VoiceDemoPanel() {
       setNotice(NOTICES.microphone)
       return
     }
-    setRequesting(true)
+    setCall('connecting')
     try {
-      const call = await startVoiceCall()
-      if (call.status !== 'ready') {
-        setNotice(NOTICES[call.status])
+      const [ticket, { VoiceConversation }] = await Promise.all([startVoiceCall(), import('@elevenlabs/client')])
+      if (ticket.status !== 'ready') {
+        setNotice(NOTICES[ticket.status])
+        setCall('idle')
         return
       }
-      startSession({
-        conversationToken: call.token,
+      session.current = await VoiceConversation.startSession({
+        conversationToken: ticket.token,
         connectionType: 'webrtc',
         overrides: { tts: { voiceId } },
+        onStatusChange: ({ status }) => {
+          if (status === 'connected') setCall('connected')
+          if (status === 'disconnected') ended()
+        },
+        onModeChange: ({ mode }) => setSpeaking(mode === 'speaking'),
         onMessage: ({ message, role }) => {
           if (role === 'agent') setCaption(message)
         },
-        onError: (message) => setNotice(/permission|microphone|NotAllowed/i.test(message) ? NOTICES.microphone : NOTICES.failed),
+        onError: (message) => setNotice(noticeFor(message)),
       })
-    } catch {
-      setNotice(NOTICES.failed)
-    } finally {
-      setRequesting(false)
+    } catch (error) {
+      setNotice(noticeFor(error instanceof Error ? error.message : String(error)))
+      ended()
     }
   }
 
-  const statusLine = live ? (isSpeaking ? 'Aria mluví…' : 'Poslouchám vás…') : connecting ? 'Spojuji…' : notice
+  const statusLine = live ? (speaking ? 'Aria mluví…' : 'Poslouchám vás…') : connecting ? 'Spojuji…' : notice
 
   return (
     <div className="voice-demo">
@@ -88,7 +97,7 @@ function VoiceDemoPanel() {
       <div className="mt-8 flex flex-col items-center gap-4 text-center">
         <button
           type="button"
-          onClick={() => (live ? endSession() : void start())}
+          onClick={() => (live ? void session.current?.endSession() : void start())}
           disabled={connecting}
           aria-pressed={live}
           className={cn('voice-demo__call', live && 'is-live')}

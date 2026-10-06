@@ -11,7 +11,7 @@ function resolveSiteUrl(): string {
 
 export const site = {
   name: 'IndiWeb',
-  title: 'IndiWeb — Weby a digitální zážitky',
+  title: 'IndiWeb — weby na míru, 3D a AI agenti',
   description:
     'Denis, Adam a Ondra. Navrhujeme weby, 3D vizualizace a AI agenty, kteří za vás zvednou telefon.',
   email: 'info.indiweb@gmail.com',

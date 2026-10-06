@@ -1,3 +1,4 @@
+import { JsonLd } from '@/components/seo/json-ld'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
@@ -27,11 +28,7 @@ const STRUCTURED_DATA = {
 export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
   return (
     <>
-      <script
-        type="application/ld+json"
-        // Escaped so the JSON can never close the script tag.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA).replace(/</g, '\\u003c') }}
-      />
+      <JsonLd data={STRUCTURED_DATA} />
       <section aria-labelledby="aria-nadpis">
         <Container className="grid min-h-svh items-center gap-16 pt-36 pb-20 lg:grid-cols-[1.1fr_1fr]">
           <div>

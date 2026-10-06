@@ -33,8 +33,9 @@
   white-space: nowrap;
   font-weight: 600;
   letter-spacing: -0.03em;
-  color: var(--color-fg-faint);
-  opacity: 0.4;
+  /* Dim, yet still readable as large text (3:1); the lit name stands out by colour and glow. */
+  color: var(--color-fg-dim);
+  opacity: 0.7;
   transition:
     color 0.5s ease,
     opacity 0.5s ease,
@@ -48,7 +49,6 @@
   font-weight: 400;
   letter-spacing: 0;
   color: var(--color-accent);
-  opacity: 0.6;
 }
 
 .services-index__item[data-active] {
@@ -56,10 +56,6 @@
   opacity: 1;
   transform: translateX(0.5rem);
   text-shadow: 0 0 28px rgb(217 184 255 / 0.35);
-}
-
-.services-index__item[data-active] .services-index__num {
-  opacity: 1;
 }
 
 .services-index__rail {
