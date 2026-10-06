@@ -37,3 +37,9 @@ it('points to the Czech data protection authority', () => {
   expect(text()).toContain('Úřad pro ochranu osobních údajů')
   expect(screen.getByRole('link', { name: /uoou\.gov\.cz/ }).getAttribute('href')).toBe('https://uoou.gov.cz')
 })
+
+it('says honestly that visits are measured, without cookies', () => {
+  render(<PrivacyPage />)
+  expect(text()).toContain('Vercel Web Analytics')
+  expect(text()).not.toContain('ani analytické')
+})

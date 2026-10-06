@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, Martian_Mono } from 'next/font/google'
 import type { ReactNode } from 'react'
@@ -68,6 +69,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <Footer />
+        {/* Cookieless visit counts (Vercel Web Analytics); described on the privacy page. */}
+        <Analytics />
       </body>
     </html>
   )

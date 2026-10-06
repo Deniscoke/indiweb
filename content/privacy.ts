@@ -62,7 +62,10 @@ export const privacy = {
           p: 'Web běží na hostingu Vercel, který při každé návštěvě zpracovává technické údaje (IP adresu, typ prohlížeče, čas) kvůli bezpečnému a spolehlivému provozu. Právním základem je náš oprávněný zájem (čl. 6 odst. 1 písm. f GDPR).',
         },
         {
-          p: 'Sami nepoužíváme žádné cookies ani analytické či reklamní nástroje. Prohlížeč si jen během návštěvy pamatuje, že jste už viděli úvodní animaci, aby se vám nespouštěla znovu.',
+          p: 'Návštěvnost měříme nástrojem Vercel Web Analytics, abychom věděli, kolik lidí web navštíví a které stránky čtou. Nepoužívá cookies, nesleduje vás napříč weby a výsledky vidíme jen jako souhrnná čísla, nikoli po jednotlivých návštěvnících. Právním základem je náš oprávněný zájem (čl. 6 odst. 1 písm. f GDPR).',
+        },
+        {
+          p: 'Sami nepoužíváme žádné cookies ani reklamní nástroje. Prohlížeč si jen během návštěvy pamatuje, že jste už viděli úvodní animaci, aby se vám nespouštěla znovu.',
         },
       ],
     },
@@ -71,7 +74,7 @@ export const privacy = {
       body: [
         {
           list: [
-            'Vercel Inc. (USA) — hosting webu',
+            'Vercel Inc. (USA) — hosting webu a měření návštěvnosti',
             'Resend, Inc. (USA) — doručení e-mailu z formuláře',
             'Google LLC (USA) — e-mailová schránka Gmail',
             'Eleven Labs Inc. (USA) — hlasová ukázka Arie',
