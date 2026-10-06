@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import nextConfig from '@/next.config'
 import robots from '@/app/robots'
 import sitemap from '@/app/sitemap'
 import { projects } from '@/content/projects'
@@ -48,5 +49,17 @@ describe('organizationJsonLd', () => {
     expect(data).toMatchObject({ name: site.name, url: site.url, email: site.email })
     expect(data.founder.map((person) => person.name)).toEqual(team.map((member) => member.name))
     for (const service of services) expect(data.knowsAbout).toContain(service.title)
+  })
+})
+
+describe('redirects', () => {
+  it('sends aria.indiweb.cz, whatever the path, to Aria’s page', async () => {
+    const rules = (await nextConfig.redirects?.()) ?? []
+    expect(rules).toContainEqual({
+      source: '/:path*',
+      has: [{ type: 'host', value: 'aria.indiweb.cz' }],
+      destination: 'https://www.indiweb.cz/aria',
+      permanent: true,
+    })
   })
 })

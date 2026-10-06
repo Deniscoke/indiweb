@@ -1,11 +1,13 @@
 import type { Media, NavItem } from './types'
 
-function resolveSiteUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  }
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+/** The site's public address. indiweb.cz redirects here, so canonical URLs must use www. */
+export const PRODUCTION_URL = 'https://www.indiweb.cz'
+
+/** The address the site builds its absolute links from: production, a preview, or local. */
+export function resolveSiteUrl(env: Record<string, string | undefined> = process.env): string {
+  if (env.NEXT_PUBLIC_SITE_URL) return env.NEXT_PUBLIC_SITE_URL
+  if (env.VERCEL_ENV === 'production') return PRODUCTION_URL
+  if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`
   return 'http://localhost:3000'
 }
 

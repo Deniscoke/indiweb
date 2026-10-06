@@ -3,7 +3,7 @@ import { aria } from '@/content/aria'
 import { processSteps } from '@/content/process'
 import { projects } from '@/content/projects'
 import { services } from '@/content/services'
-import { hero, navigation, site } from '@/content/site'
+import { hero, navigation, PRODUCTION_URL, resolveSiteUrl, site } from '@/content/site'
 import { splatShowcase } from '@/content/splat'
 import { team } from '@/content/team'
 import { SERVICE_IDS } from '@/content/types'
@@ -105,5 +105,18 @@ describe('splat showcase', () => {
 
   it('names what we build together with Splatoo', () => {
     expect(splatShowcase.collaboration.length).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe('resolveSiteUrl', () => {
+  it('uses the www domain in production, where indiweb.cz redirects to it', () => {
+    expect(resolveSiteUrl({ VERCEL_ENV: 'production', VERCEL_URL: 'indiweb-abc.vercel.app' })).toBe(PRODUCTION_URL)
+    expect(PRODUCTION_URL).toBe('https://www.indiweb.cz')
+  })
+
+  it('lets previews and local runs point to themselves, and allows an override', () => {
+    expect(resolveSiteUrl({ VERCEL_ENV: 'preview', VERCEL_URL: 'indiweb-abc.vercel.app' })).toBe('https://indiweb-abc.vercel.app')
+    expect(resolveSiteUrl({})).toBe('http://localhost:3000')
+    expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: 'https://example.cz', VERCEL_ENV: 'production' })).toBe('https://example.cz')
   })
 })
