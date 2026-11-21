@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
+import { FAB_IMAGE_SIZE, fabImage, fabListings } from '@/content/fab'
 import { PROJECT_IMAGE_SIZE, projects } from '@/content/projects'
 import { media } from '@/content/site'
 
@@ -27,6 +28,17 @@ describe('media', () => {
     expect(existsSync(file)).toBe(true)
     const { width, height, format } = await sharp(file).metadata()
     expect({ width, height, format }).toEqual({ width: item.width, height: item.height, format: 'webp' })
+    expect(statSync(file).size).toBeLessThan(MAX_BYTES)
+  })
+})
+
+describe('fab previews', () => {
+  const featured = fabListings.filter((l) => l.featured)
+  it.each(featured.map((l) => [l.slug] as const))('%s has a 960×540 WebP preview under 400 KB', async (slug) => {
+    const file = publicFile(fabImage(slug))
+    expect(existsSync(file)).toBe(true)
+    const { width, height, format } = await sharp(file).metadata()
+    expect({ width, height, format }).toEqual({ ...FAB_IMAGE_SIZE, format: 'webp' })
     expect(statSync(file).size).toBeLessThan(MAX_BYTES)
   })
 })

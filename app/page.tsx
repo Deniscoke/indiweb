@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { ContactSection } from '@/components/contact/contact-section'
 import { AriaTeaser } from '@/components/home/aria-teaser'
+import { FabStore } from '@/components/home/fab-store'
 import { Hero } from '@/components/home/hero'
 import { Process } from '@/components/home/process'
 import { Projects } from '@/components/home/projects'
@@ -24,6 +25,7 @@ export default function HomePage() {
       <SplatShowcase />
       <AriaTeaser voiceDemo={voiceDemoEnabled()} />
       <Projects />
+      <FabStore />
       <Process />
       <Team />
       <ContactSection />

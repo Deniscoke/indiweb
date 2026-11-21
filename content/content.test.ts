@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { aria } from '@/content/aria'
+import { fabImage, fabListings, fabStore, productCount } from '@/content/fab'
 import { processSteps } from '@/content/process'
 import { projects } from '@/content/projects'
 import { services } from '@/content/services'
@@ -118,5 +119,36 @@ describe('resolveSiteUrl', () => {
     expect(resolveSiteUrl({ VERCEL_ENV: 'preview', VERCEL_URL: 'indiweb-abc.vercel.app' })).toBe('https://indiweb-abc.vercel.app')
     expect(resolveSiteUrl({})).toBe('http://localhost:3000')
     expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: 'https://example.cz', VERCEL_ENV: 'production' })).toBe('https://example.cz')
+  })
+})
+
+describe('fab store', () => {
+  it('has unique url-safe slugs', () => {
+    const slugs = fabListings.map((l) => l.slug)
+    expect(new Set(slugs).size).toBe(slugs.length)
+    for (const slug of slugs) expect(slug).toMatch(SLUG)
+  })
+
+  it('links the store and every listing to fab.com', () => {
+    for (const url of [fabStore.url, ...fabListings.map((l) => l.url)]) {
+      expect(isHttps(url)).toBe(true)
+      expect(new URL(url).host).toBe('www.fab.com')
+    }
+  })
+
+  it('features a full row of four on desktop', () => {
+    const featured = fabListings.filter((l) => l.featured)
+    expect(featured.length).toBeGreaterThan(0)
+    expect(featured.length % 4).toBe(0)
+  })
+
+  it('stores each preview as /fab/<slug>.webp', () => {
+    expect(fabImage('combat-vfx')).toBe('/fab/combat-vfx.webp')
+  })
+
+  it('counts products in Czech', () => {
+    expect(productCount(1)).toBe('1 produkt')
+    expect(productCount(3)).toBe('3 produkty')
+    expect(productCount(15)).toBe('15 produktů')
   })
 })

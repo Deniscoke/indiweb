@@ -26,6 +26,7 @@ export const navigation: NavItem[] = [
   { href: '/#splaty', label: '3D' },
   { href: '/#aria', label: 'Aria' },
   { href: '/#projekty', label: 'Projekty' },
+  { href: '/#fab', label: 'Assety' },
   { href: '/#o-nas', label: 'O nás' },
   { href: '/#kontakt', label: 'Kontakt' },
 ]

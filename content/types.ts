@@ -48,3 +48,13 @@ export type Product = {
 export type NavItem = { href: string; label: string }
 
 export type Media = { src: string; width: number; height: number; alt: string }
+
+export type FabListing = {
+  slug: string
+  title: string
+  url: string
+  /** What it is, in a few words: shown on the card. */
+  kind: string
+  /** Shown as a card with its preview at /fab/<slug>.webp. */
+  featured?: boolean
+}
