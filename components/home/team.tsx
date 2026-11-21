@@ -1,13 +1,16 @@
 'use client'
 
 import { useRef } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
-import { team } from '@/content/team'
+import { localizedTeam } from '@/content/team'
 import { gsap, useScene } from '@/lib/motion'
 import { TeamCard } from './team-card'
 
 export function Team() {
+  const { dict } = useI18n()
+  const team = localizedTeam(dict)
   const ref = useRef<HTMLElement>(null)
 
   // The crew steps forward one by one, each row sliding in behind a line of light.
@@ -35,8 +38,8 @@ export function Team() {
       <Container>
         <SectionHeading
           id="o-nas-nadpis"
-          title="Tři kluci, kteří tvoří weby, 3D a AI."
-          lead="Malý tým znamená, že mluvíte přímo s námi — bez prostředníků a přeposílání."
+          title={dict.team.title}
+          lead={dict.team.lead}
         />
         <ul data-crew className="mt-12 border-b border-line sm:mt-20">
           {team.map((member) => (

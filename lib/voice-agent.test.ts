@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { aria } from '@/content/aria'
-import { processSteps } from '@/content/process'
-import { services } from '@/content/services'
+import { cs } from '@/content/locales/cs'
+import { localizedServices } from '@/content/services'
 import { site } from '@/content/site'
-import { splatShowcase } from '@/content/splat'
 import { team } from '@/content/team'
 import { TRANSCRIPT_RETENTION_DAYS, VOICES, voiceAgentConfig, voiceAgentPrompt } from '@/lib/voice-agent'
+
+const { aria } = cs
+const services = localizedServices(cs)
 
 describe('voiceAgentPrompt', () => {
   const prompt = voiceAgentPrompt()
@@ -15,11 +16,11 @@ describe('voiceAgentPrompt', () => {
       expect(prompt).toContain(service.title)
       for (const point of service.points) expect(prompt).toContain(point)
     }
-    for (const step of processSteps) expect(prompt).toContain(step.title)
+    for (const step of cs.process.steps) expect(prompt).toContain(step.title)
     for (const member of team) expect(prompt).toContain(member.name)
     for (const capability of aria.capabilities) expect(prompt).toContain(capability)
     expect(prompt).toContain(site.email)
-    for (const item of splatShowcase.collaboration) expect(prompt).toContain(item)
+    for (const item of cs.splat.collaboration) expect(prompt).toContain(item)
     expect(prompt).toContain('Splatoo')
   })
 
@@ -66,5 +67,9 @@ describe('VOICES', () => {
     expect(VOICES.length).toBeGreaterThanOrEqual(3)
     expect(new Set(VOICES.map((voice) => voice.id)).size).toBe(VOICES.length)
     expect(VOICES[0].label).toBe('Markéta')
+  })
+
+  it('describes every voice in the dictionary', () => {
+    expect(Object.keys(cs.voiceDemo.voices).sort()).toEqual(VOICES.map((voice) => voice.slug).sort())
   })
 })

@@ -1,17 +1,19 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { BulletList } from '@/components/ui/bullet-list'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
-import { splatShowcase } from '@/content/splat'
+import { splatScene } from '@/content/splat'
 import { gsap, useScene } from '@/lib/motion'
 
 /** Starts loading the embed this far ahead, so it is ready by the time it is seen. */
 const PRELOAD_MARGIN = '600px 0px'
 
 export function SplatShowcase() {
+  const t = useI18n().dict.splat
   const ref = useRef<HTMLElement>(null)
   // The embed pulls in over 1 MB of Splatoo's viewer, so it waits until the
   // visitor nears it (browsers without IntersectionObserver load it at once).
@@ -57,13 +59,11 @@ export function SplatShowcase() {
     )
   })
 
-  const { scene } = splatShowcase
-
   return (
     <section ref={ref} id="splaty" aria-labelledby="splaty-nadpis" className="pt-8 pb-20 sm:pt-12 sm:pb-40">
       <Container>
-        <p className="mb-6 font-mono text-xs text-accent">{splatShowcase.eyebrow}</p>
-        <SectionHeading id="splaty-nadpis" title={splatShowcase.title} lead={splatShowcase.lead} />
+        <p className="mb-6 font-mono text-xs text-accent">{t.eyebrow}</p>
+        <SectionHeading id="splaty-nadpis" title={t.title} lead={t.lead} />
 
         <div
           data-portal
@@ -71,8 +71,8 @@ export function SplatShowcase() {
         >
           {near ? (
             <iframe
-              src={scene.embedUrl}
-              title={scene.title}
+              src={splatScene.embedUrl}
+              title={t.sceneTitle}
               loading="lazy"
               allow="fullscreen"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -80,15 +80,15 @@ export function SplatShowcase() {
             />
           ) : (
             <p className="absolute inset-0 grid place-items-center font-mono text-xs text-fg-faint">
-              Načítám 3D prohlídku…
+              {t.loading}
             </p>
           )}
         </div>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
-          <BulletList items={splatShowcase.collaboration} />
-          <ButtonLink href={scene.url} external variant="ghost" withArrow>
-            Otevřít ve Splatoo
+          <BulletList items={t.collaboration} />
+          <ButtonLink href={splatScene.url} external variant="ghost" withArrow>
+            {t.open}
           </ButtonLink>
         </div>
       </Container>

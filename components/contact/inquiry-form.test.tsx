@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import { renderWithI18n } from '@/test/render'
 
 const { sendInquiryMock, searchParamsMock } = vi.hoisted(() => ({
   sendInquiryMock: vi.fn(),
@@ -26,7 +27,7 @@ const submit = () => fireEvent.submit(screen.getByRole('form', { name: 'Poptávk
 describe('InquiryForm', () => {
   it('sends the filled-in fields to the server action', async () => {
     sendInquiryMock.mockResolvedValue({ status: 'success' })
-    render(<InquiryForm />)
+    renderWithI18n(<InquiryForm />)
     fillValid()
     fireEvent.change(select(), { target: { value: 'ai' } })
     submit()
@@ -39,6 +40,7 @@ describe('InquiryForm', () => {
       service: 'ai',
       message: 'Potřebujeme nový web pro kavárnu.',
       company_url_2: '',
+      locale: 'cs',
     })
     expect(screen.queryByRole('form', { name: 'Poptávkový formulář' })).toBeNull()
   })
@@ -48,7 +50,7 @@ describe('InquiryForm', () => {
       status: 'invalid',
       fieldErrors: { email: ['Zadejte platný e-mail.'] },
     })
-    render(<InquiryForm />)
+    renderWithI18n(<InquiryForm />)
     fillValid()
     submit()
 
@@ -62,7 +64,7 @@ describe('InquiryForm', () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
     sendInquiryMock.mockResolvedValue({ status: 'error' })
-    render(<InquiryForm />)
+    renderWithI18n(<InquiryForm />)
     fillValid()
     submit()
 
@@ -77,14 +79,14 @@ describe('InquiryForm', () => {
   })
 
   it('preselects a service and lets the visitor change it', () => {
-    render(<InquiryForm presetService="ai" />)
+    renderWithI18n(<InquiryForm presetService="ai" />)
     expect(select().value).toBe('ai')
     fireEvent.change(select(), { target: { value: 'web' } })
     expect(select().value).toBe('web')
   })
 
   it('hides the honeypot from keyboard users', () => {
-    const { container } = render(<InquiryForm />)
+    const { container } = renderWithI18n(<InquiryForm />)
     const honeypot = container.querySelector('input[name="company_url_2"]') as HTMLInputElement
     expect(honeypot.tabIndex).toBe(-1)
     expect(honeypot.closest('[aria-hidden="true"]')).not.toBeNull()
@@ -92,7 +94,7 @@ describe('InquiryForm', () => {
 
   it('focuses the success message on success', async () => {
     sendInquiryMock.mockResolvedValue({ status: 'success' })
-    render(<InquiryForm />)
+    renderWithI18n(<InquiryForm />)
     fillValid()
     submit()
 
@@ -106,7 +108,7 @@ describe('InquiryForm', () => {
       status: 'invalid',
       fieldErrors: { message: ['Napište nám zprávu.'], email: ['Zadejte platný e-mail.'] },
     })
-    render(<InquiryForm />)
+    renderWithI18n(<InquiryForm />)
     fillValid()
     submit()
 
@@ -118,18 +120,26 @@ describe('InquiryForm', () => {
 describe('InquiryFormWithParams', () => {
   it('preselects the service from ?sluzba=', () => {
     searchParamsMock.mockReturnValue(new URLSearchParams('sluzba=ai'))
-    render(<InquiryFormWithParams />)
+    renderWithI18n(<InquiryFormWithParams />)
     expect(select().value).toBe('ai')
   })
 
   it('ignores an unknown ?sluzba= value', () => {
     searchParamsMock.mockReturnValue(new URLSearchParams('sluzba=eshop'))
-    render(<InquiryFormWithParams />)
+    renderWithI18n(<InquiryFormWithParams />)
     expect(select().value).toBe('')
   })
 
+  it('sends the page language along, so the server answers in it', async () => {
+    sendInquiryMock.mockResolvedValue({ status: 'success' })
+    renderWithI18n(<InquiryForm />, 'de')
+    fireEvent.submit(screen.getByRole('form'))
+    await screen.findByRole('status')
+    expect((sendInquiryMock.mock.calls.at(-1)?.[1] as FormData).get('locale')).toBe('de')
+  })
+
   it('tells, next to the send button, how the inquiry is handled', () => {
-    render(<InquiryForm />)
+    renderWithI18n(<InquiryForm />)
     expect(screen.getByRole('link', { name: 'Zásady ochrany osobních údajů' }).getAttribute('href')).toBe('/ochrana-osobnich-udaju')
   })
 })

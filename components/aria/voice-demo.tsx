@@ -5,21 +5,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { startVoiceCall } from '@/app/actions/start-voice-call'
 import { VoiceDots } from '@/components/aria/voice-dots'
-import { PRIVACY_HREF } from '@/content/site'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { cn } from '@/lib/cn'
+import { format, localizedPath } from '@/lib/i18n'
 import { MAX_CALL_SECONDS, VOICES } from '@/lib/voice-agent'
 
-const NOTICES = {
-  unavailable: 'Ukázka teď není k dispozici. Zkuste to prosím později, nebo nám rovnou napište.',
-  busy: 'To už bylo hodně hovorů za sebou. Zkuste to prosím znovu za pár minut.',
-  microphone: 'Na hovor s Ariou je potřeba mikrofon. Povolte ho prosím v prohlížeči.',
-  failed: 'Hovor se nepodařilo spojit. Zkontrolujte mikrofon a zkuste to znovu.',
-} as const
-
 type CallState = 'idle' | 'connecting' | 'connected'
+/** Why a call did not start; the words are in the dictionary (voiceDemo.notices). */
+type Notice = 'unavailable' | 'busy' | 'microphone' | 'failed'
 
-const noticeFor = (message: string) =>
-  /permission|microphone|NotAllowed/i.test(message) ? NOTICES.microphone : NOTICES.failed
+const noticeFor = (message: string): Notice =>
+  /permission|microphone|NotAllowed/i.test(message) ? 'microphone' : 'failed'
 
 /**
  * Try Aria live: a voice call with IndiWeb's own agent, right in the browser.
@@ -27,10 +23,12 @@ const noticeFor = (message: string) =>
  * starts a call, so the page itself stays light.
  */
 export function VoiceDemo() {
-  const [voiceId, setVoiceId] = useState(VOICES[0].id)
+  const { locale, dict } = useI18n()
+  const t = dict.voiceDemo
+  const [voiceId, setVoiceId] = useState<string>(VOICES[0].id)
   const [call, setCall] = useState<CallState>('idle')
   const [speaking, setSpeaking] = useState(false)
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notice, setNotice] = useState<Notice | null>(null)
   const [caption, setCaption] = useState<string | null>(null)
   const session = useRef<VoiceConversation | null>(null)
   const smoothed = useRef(0)
@@ -59,14 +57,14 @@ export function VoiceDemo() {
     setNotice(null)
     setCaption(null)
     if (!navigator.mediaDevices?.getUserMedia) {
-      setNotice(NOTICES.microphone)
+      setNotice('microphone')
       return
     }
     setCall('connecting')
     try {
       const [ticket, { VoiceConversation }] = await Promise.all([startVoiceCall(), import('@elevenlabs/client')])
       if (ticket.status !== 'ready') {
-        setNotice(NOTICES[ticket.status])
+        setNotice(ticket.status)
         setCall('idle')
         return
       }
@@ -90,7 +88,13 @@ export function VoiceDemo() {
     }
   }
 
-  const statusLine = live ? (speaking ? 'Aria mluví…' : 'Poslouchám vás…') : connecting ? 'Spojuji…' : notice
+  const statusLine = live
+    ? speaking
+      ? t.status.speaking
+      : t.status.listening
+    : connecting
+      ? t.status.connecting
+      : notice && t.notices[notice]
 
   return (
     <div className="voice-demo">
@@ -105,19 +109,24 @@ export function VoiceDemo() {
           className={cn('voice-demo__call', live && 'is-live')}
         >
           <MicIcon />
-          {live ? 'Ukončit hovor' : connecting ? 'Připojuji…' : 'Promluvit s Ariou'}
+          {live ? t.hangUp : connecting ? t.connecting : t.call}
         </button>
         <p aria-live="polite" className="voice-demo__status min-h-5 max-w-sm text-sm text-fg-dim">
           {statusLine}
         </p>
-        {caption && <p className="voice-demo__caption max-w-md text-pretty">„{caption}“</p>}
+        {/* Aria speaks Czech, whatever the page's language. */}
+        {caption && (
+          <p lang="cs" className="voice-demo__caption max-w-md text-pretty">
+            {format(t.quote, { text: caption })}
+          </p>
+        )}
       </div>
 
       <fieldset className="mt-8 flex flex-col items-center gap-3" disabled={live || connecting}>
-        <legend className="mb-3 w-full text-center font-mono text-xs text-fg-faint">Vyberte Ariin hlas</legend>
+        <legend className="mb-3 w-full text-center font-mono text-xs text-fg-faint">{t.chooseVoice}</legend>
         <div className="flex flex-wrap justify-center gap-2">
           {VOICES.map((voice) => (
-            <label key={voice.id} className="voice-chip" title={voice.description}>
+            <label key={voice.id} className="voice-chip" title={t.voices[voice.slug]}>
               <input
                 type="radio"
                 name="aria-voice"
@@ -128,18 +137,22 @@ export function VoiceDemo() {
               />
               <span aria-hidden="true" className="voice-chip__dot" />
               {voice.label}
-              <span className="sr-only">, {voice.description}</span>
+              <span className="sr-only">, {t.voices[voice.slug]}</span>
             </label>
           ))}
         </div>
       </fieldset>
 
       <p className="mt-6 text-center font-mono text-[0.7rem] leading-relaxed text-fg-faint">
-        Živá ukázka přes ElevenLabs · nejvýš {MAX_CALL_SECONDS / 60} minuty · potřebuje mikrofon ·{' '}
-        <Link href={PRIVACY_HREF} className="underline underline-offset-4 hover:text-fg">
-          Jak zpracováváme hlas
+        {format(t.finePrint, { minutes: MAX_CALL_SECONDS / 60 })}{' '}
+        <Link href={localizedPath(locale, { name: 'privacy' })} className="underline underline-offset-4 hover:text-fg">
+          {t.privacyLink}
         </Link>
       </p>
+      {/* Says, in other languages, that the demo itself speaks Czech. */}
+      {t.languageNote && (
+        <p className="mt-2 text-center font-mono text-[0.7rem] leading-relaxed text-fg-faint">{t.languageNote}</p>
+      )}
     </div>
   )
 }

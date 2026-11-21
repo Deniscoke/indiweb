@@ -1,24 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { aria } from '@/content/aria'
-import { fabImage, fabListings, fabStore, productCount } from '@/content/fab'
-import { processSteps } from '@/content/process'
-import { projects } from '@/content/projects'
-import { services } from '@/content/services'
-import { hero, navigation, PRODUCTION_URL, resolveSiteUrl, site } from '@/content/site'
-import { splatShowcase } from '@/content/splat'
-import { team } from '@/content/team'
+import { FAB_STORE_URL, fabImage, fabListings, localizedFabListings } from '@/content/fab'
+import { cs } from '@/content/locales/cs'
+import { localizedProjects } from '@/content/projects'
+import { localizedServices } from '@/content/services'
+import { NAV_SECTIONS, PRODUCTION_URL, resolveSiteUrl, site } from '@/content/site'
+import { splatScene } from '@/content/splat'
+import { localizedTeam, team } from '@/content/team'
 import { SERVICE_IDS } from '@/content/types'
+import { plural } from '@/lib/i18n'
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const isHttps = (url: string) => new URL(url).protocol === 'https:'
+
+const { aria, hero } = cs
+const services = localizedServices(cs)
+const projects = localizedProjects(cs)
 
 describe('site', () => {
   it('uses the IndiWeb inbox', () => {
     expect(site.email).toBe('info.indiweb@gmail.com')
   })
 
-  it('points every navigation item to a home page section', () => {
-    for (const item of navigation) expect(item.href).toMatch(/^\/#[a-z-]+$/)
+  it('names every home page section of the menu, by its id', () => {
+    for (const section of NAV_SECTIONS) {
+      expect(section).toMatch(/^[a-z-]+$/)
+      expect(cs.nav[section]).toBeTruthy()
+    }
   })
 
   it('spreads three short lines across the hero', () => {
@@ -65,6 +72,10 @@ describe('projects', () => {
       expect(p.highlights.length).toBeGreaterThan(0)
     }
   })
+
+  it('joins each project with its Czech texts', () => {
+    expect(projects[0]).toMatchObject({ title: 'Elevátor Servis', client: 'Servis výtahů, Banská Bystrica' })
+  })
 })
 
 describe('team', () => {
@@ -79,6 +90,13 @@ describe('team', () => {
   it('uses https for every personal website', () => {
     for (const m of team) if (m.website) expect(isHttps(m.website)).toBe(true)
   })
+
+  it('gives every member a role and a bio', () => {
+    for (const m of localizedTeam(cs)) {
+      expect(m.role).toBeTruthy()
+      expect(m.bio).toBeTruthy()
+    }
+  })
 })
 
 describe('aria', () => {
@@ -91,21 +109,21 @@ describe('aria', () => {
 
 describe('process', () => {
   it('has four steps', () => {
-    expect(processSteps).toHaveLength(4)
+    expect(cs.process.steps).toHaveLength(4)
   })
 })
 
 describe('splat showcase', () => {
   it('embeds a Splatoo presentation over https', () => {
-    const embed = new URL(splatShowcase.scene.embedUrl)
+    const embed = new URL(splatScene.embedUrl)
     expect(embed.protocol).toBe('https:')
     expect(embed.hostname).toBe('app.splatoo.com')
     expect(embed.searchParams.get('embed')).toBe('1')
-    expect(isHttps(splatShowcase.scene.url)).toBe(true)
+    expect(isHttps(splatScene.url)).toBe(true)
   })
 
   it('names what we build together with Splatoo', () => {
-    expect(splatShowcase.collaboration.length).toBeGreaterThanOrEqual(3)
+    expect(cs.splat.collaboration.length).toBeGreaterThanOrEqual(3)
   })
 })
 
@@ -130,7 +148,7 @@ describe('fab store', () => {
   })
 
   it('links the store and every listing to fab.com', () => {
-    for (const url of [fabStore.url, ...fabListings.map((l) => l.url)]) {
+    for (const url of [FAB_STORE_URL, ...fabListings.map((l) => l.url)]) {
       expect(isHttps(url)).toBe(true)
       expect(new URL(url).host).toBe('www.fab.com')
     }
@@ -146,9 +164,14 @@ describe('fab store', () => {
     expect(fabImage('combat-vfx')).toBe('/fab/combat-vfx.webp')
   })
 
+  it('says what every listing is', () => {
+    for (const listing of localizedFabListings(cs)) expect(listing.kind).toBeTruthy()
+  })
+
   it('counts products in Czech', () => {
-    expect(productCount(1)).toBe('1 produkt')
-    expect(productCount(3)).toBe('3 produkty')
-    expect(productCount(15)).toBe('15 produktů')
+    const count = (n: number) => plural('cs', n, cs.fab.productsOnFab)
+    expect(count(1)).toBe('1 produkt na Fabu')
+    expect(count(3)).toBe('3 produkty na Fabu')
+    expect(count(15)).toBe('15 produktů na Fabu')
   })
 })

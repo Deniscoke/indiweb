@@ -1,53 +1,46 @@
-import { JsonLd } from '@/components/seo/json-ld'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
 import { StepList } from '@/components/ui/step-list'
-import { aria } from '@/content/aria'
-import { site } from '@/content/site'
+import { ARIA_NAME } from '@/content/aria'
+import { getDictionary } from '@/content/locales'
+import { CONTACT_ID } from '@/content/site'
+import { localizedPath, type Locale } from '@/lib/i18n'
 import { ScrambleText } from './scramble-text'
 import { VoiceDemo } from './voice-demo'
 import { VoiceDots } from './voice-dots'
 
-const INQUIRY_HREF = '/?sluzba=ai#kontakt'
 const TRY_ARIA_ID = 'vyzkouset-ariu'
 
-/** What search engines learn about Aria: a service IndiWeb provides. */
-const STRUCTURED_DATA = {
-  '@context': 'https://schema.org',
-  '@type': 'Service',
-  name: aria.name,
-  serviceType: 'AI hlasový agent',
-  description: aria.description,
-  provider: { '@type': 'Organization', name: site.name, url: site.url, email: site.email },
-  areaServed: ['CZ', 'SK'],
-  availableLanguage: ['cs', 'sk'],
-}
+type AriaPageProps = { locale: Locale; voiceDemo?: boolean }
 
 /** `voiceDemo`: the live call with Aria is set up, so visitors can try her right on the page. */
-export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
+export function AriaPage({ locale, voiceDemo = false }: AriaPageProps) {
+  const { aria } = getDictionary(locale)
+  const t = aria.page
+  // The inquiry form on the home page, with the AI service already chosen.
+  const inquiryHref = `${localizedPath(locale, { name: 'home' })}?sluzba=ai#${CONTACT_ID}`
   return (
     <>
-      <JsonLd data={STRUCTURED_DATA} />
       <section aria-labelledby="aria-nadpis">
         <Container className="grid min-h-svh items-center gap-16 pt-36 pb-20 lg:grid-cols-[1.1fr_1fr]">
           <div>
-            <p className="font-mono text-xs text-accent">Náš vlastní produkt</p>
+            <p className="font-mono text-xs text-accent">{t.eyebrow}</p>
             <h1
               id="aria-nadpis"
               className="lit mt-6 text-[clamp(5rem,16vw,12rem)] leading-[0.85] font-semibold tracking-[-0.06em]"
             >
-              {aria.name}
+              {ARIA_NAME}
             </h1>
             <p className="mt-8 font-mono text-xl text-balance sm:text-2xl">
               <ScrambleText text={aria.tagline} />
             </p>
             <p className="mt-6 max-w-xl text-lg text-fg-dim">{aria.description}</p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href={INQUIRY_HREF}>Chci Ariu pro svou firmu</ButtonLink>
+              <ButtonLink href={inquiryHref}>{t.cta}</ButtonLink>
               {voiceDemo && (
                 <ButtonLink href={`#${TRY_ARIA_ID}`} variant="ghost">
-                  Vyzkoušet Ariu
+                  {aria.try}
                 </ButtonLink>
               )}
             </div>
@@ -60,7 +53,7 @@ export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
 
       <section aria-labelledby="aria-umi" className="py-20 sm:py-28">
         <Container>
-          <SectionHeading id="aria-umi" title="Telefon, který nikdy nezvoní naprázdno." />
+          <SectionHeading id="aria-umi" title={t.capabilitiesTitle} />
           <ul className="mt-16 grid border-t border-line md:grid-cols-2">
             {aria.capabilities.map((capability) => (
               <li key={capability} className="border-b border-line py-8 text-2xl tracking-tight md:odd:pr-10 md:even:pl-10 md:even:border-l">
@@ -73,7 +66,7 @@ export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
 
       <section aria-labelledby="aria-pro-koho" className="py-20 sm:py-28">
         <Container>
-          <SectionHeading id="aria-pro-koho" title="Pro všechny, kdo nestíhají zvedat telefon." />
+          <SectionHeading id="aria-pro-koho" title={t.audienceTitle} />
           <ul className="mt-16 flex flex-wrap gap-x-10 gap-y-4 font-mono text-sm text-fg-dim">
             {aria.audience.map((item) => (
               <li key={item}>{item}</li>
@@ -84,7 +77,7 @@ export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
 
       <section aria-labelledby="aria-nasazeni" className="py-20 sm:py-28">
         <Container>
-          <SectionHeading id="aria-nasazeni" title="Jak Ariu spustíme u vás." />
+          <SectionHeading id="aria-nasazeni" title={t.rolloutTitle} />
           <StepList steps={aria.rollout} className="mt-16" />
         </Container>
       </section>
@@ -97,13 +90,13 @@ export function AriaPage({ voiceDemo = false }: { voiceDemo?: boolean }) {
               className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent to-transparent"
             />
             <h2 id="aria-cta" className="lit text-5xl font-semibold tracking-[-0.04em] sm:text-7xl">
-              Chcete Ariu i u vás?
+              {t.closingTitle}
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg text-fg-dim">
-              Napište nám, jaké hovory vám chodí. Ozveme se do 24 hodin.
+              {t.closingLead}
             </p>
             <div className="mt-10 flex justify-center">
-              <ButtonLink href={INQUIRY_HREF}>Chci Ariu pro svou firmu</ButtonLink>
+              <ButtonLink href={inquiryHref}>{t.cta}</ButtonLink>
             </div>
           </div>
         </Container>

@@ -2,13 +2,13 @@
 
 import Image from 'next/image'
 import { useRef } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
-import { FAB_IMAGE_SIZE, fabImage, fabListings, fabStore, productCount } from '@/content/fab'
+import { FAB_IMAGE_SIZE, FAB_STORE_URL, fabImage, localizedFabListings } from '@/content/fab'
+import { plural } from '@/lib/i18n'
 import { fitsInView, gsap, useScene } from '@/lib/motion'
-
-const featured = fabListings.filter((listing) => listing.featured)
 
 /** Unlit, as a scene looks in the editor before its lighting is built. */
 const UNLIT = { filter: 'grayscale(1) brightness(0.4)' }
@@ -18,6 +18,10 @@ const BEAM_FROM = -0.06
 const BEAM_TO = 1.06
 
 export function FabStore() {
+  const { locale, dict } = useI18n()
+  const t = dict.fab
+  const listings = localizedFabListings(dict)
+  const featured = listings.filter((listing) => listing.featured)
   const ref = useRef<HTMLElement>(null)
 
   // Scene 4b — "Building lighting…". On desktop the store pins as a dark floor of
@@ -112,8 +116,8 @@ export function FabStore() {
   return (
     <section ref={ref} id="fab" aria-labelledby="fab-nadpis" className="py-20 sm:py-40">
       <Container>
-        <p className="mb-6 font-mono text-xs text-accent">{fabStore.eyebrow}</p>
-        <SectionHeading id="fab-nadpis" title={fabStore.title} lead={fabStore.lead} />
+        <p className="mb-6 font-mono text-xs text-accent">{t.eyebrow}</p>
+        <SectionHeading id="fab-nadpis" title={t.title} lead={t.lead} />
 
         <div data-stage className="fab-stage mt-12 sm:mt-20">
           <p data-status aria-hidden="true" className="fab-status">
@@ -143,7 +147,7 @@ export function FabStore() {
                         {listing.title}
                       </h3>
                     </div>
-                    <span className="sr-only">(otevře se v novém okně na Fabu)</span>
+                    <span className="sr-only">{t.opensOnFab}</span>
                   </a>
                 </li>
               ))}
@@ -153,15 +157,15 @@ export function FabStore() {
 
         <div className="mt-14 flex flex-col gap-8 border-t border-line pt-8 sm:mt-20 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-3">
-            <p className="text-2xl font-semibold tracking-tight">{productCount(fabListings.length)} na Fabu</p>
-            <ul aria-label="Technologie" className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-fg-faint">
-              {fabStore.facts.map((fact) => (
+            <p className="text-2xl font-semibold tracking-tight">{plural(locale, listings.length, t.productsOnFab)}</p>
+            <ul aria-label={t.factsLabel} className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-fg-faint">
+              {t.facts.map((fact) => (
                 <li key={fact}>{fact}</li>
               ))}
             </ul>
           </div>
-          <ButtonLink href={fabStore.url} external withArrow>
-            Celý obchod na Fabu
+          <ButtonLink href={FAB_STORE_URL} external withArrow>
+            {t.store}
           </ButtonLink>
         </div>
       </Container>

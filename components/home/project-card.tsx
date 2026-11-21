@@ -1,11 +1,16 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { TagList } from '@/components/ui/tag-list'
 import { PROJECT_IMAGE_SIZE } from '@/content/projects'
 import type { Project } from '@/content/types'
-import { MARKET_LABELS } from '@/lib/projects'
+import { format, localizedPath } from '@/lib/i18n'
 
 export function ProjectCard({ project }: { project: Project }) {
+  const { locale, dict } = useI18n()
+  const t = dict.projects
   const host = new URL(project.liveUrl).host
 
   return (
@@ -13,7 +18,7 @@ export function ProjectCard({ project }: { project: Project }) {
       <div className="relative overflow-hidden bg-bg-soft">
         <Image
           src={project.image}
-          alt={`Úvodní obrazovka webu ${project.title}`}
+          alt={format(t.screenshotAlt, { title: project.title })}
           width={PROJECT_IMAGE_SIZE.width}
           height={PROJECT_IMAGE_SIZE.height}
           sizes="(min-width: 768px) 50vw, 100vw"
@@ -28,10 +33,10 @@ export function ProjectCard({ project }: { project: Project }) {
 
       <div className="mt-6 flex items-baseline justify-between gap-6 font-mono text-xs text-fg-faint">
         <span>{host}</span>
-        <span>{MARKET_LABELS[project.market]}</span>
+        <span>{dict.common.markets[project.market]}</span>
       </div>
       <h3 className="mt-3 text-3xl font-semibold tracking-tight">
-        <Link href={`/projekty/${project.slug}`} className="after:absolute after:inset-0">
+        <Link href={localizedPath(locale, { name: 'project', slug: project.slug })} className="after:absolute after:inset-0">
           {project.title}
         </Link>
       </h3>
@@ -45,8 +50,8 @@ export function ProjectCard({ project }: { project: Project }) {
           rel="noopener noreferrer"
           className="relative z-10 -my-3 py-3 text-sm text-accent underline-offset-4 hover:underline"
         >
-          Živá ukázka <span aria-hidden="true">↗</span>{' '}
-          <span className="sr-only">(otevře se v novém okně)</span>
+          {t.liveDemo} <span aria-hidden="true">↗</span>{' '}
+          <span className="sr-only">{dict.common.opensInNewWindow}</span>
         </a>
       </div>
     </article>

@@ -1,4 +1,3 @@
-import { site } from '@/content/site'
 import { TRANSCRIPT_RETENTION_DAYS } from '@/lib/voice-agent'
 
 /** A paragraph, a list, the controller's e-mail, or the data protection authority. */
@@ -7,12 +6,22 @@ export type PrivacyBlock = { p: string } | { list: string[] } | { contact: true 
 export type PrivacySection = { title: string; body: PrivacyBlock[] }
 
 /**
- * The privacy notice (GDPR art. 13). Keep it true to how the site works: the
- * voice transcript retention comes from the agent's own setting.
+ * The privacy notice (GDPR art. 13) in Czech, the source language. Keep it true
+ * to how the site works: the voice transcript retention comes from the agent's
+ * own setting.
  */
-export const privacy = {
+export const cs = {
+  metaTitle: 'Ochrana osobních údajů',
+  metaDescription: 'Jaké údaje web IndiWeb zpracovává, proč, jak dlouho a jaká máte práva.',
+  eyebrow: 'Právní informace',
+  title: 'Ochrana osobních údajů',
+  /** "Platné od 6. 10. 2026" */
+  effective: 'Platné od {date}',
   updated: '6. 10. 2026',
-  controller: { name: 'Denis Mitrović', email: site.email },
+  /** The paragraph about the supervisory authority; its website link follows the text. */
+  authority:
+    'Pokud se domníváte, že s vašimi údaji nezacházíme v souladu s předpisy, můžete podat stížnost u dozorového úřadu: Úřad pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7,',
+  authorityAfter: '.',
   intro:
     'Na této stránce najdete, jaké údaje o vás při návštěvě webu IndiWeb zpracováváme, proč, jak dlouho a jaká máte práva. Snažíme se sbírat jen to, co opravdu potřebujeme.',
   sections: [
@@ -108,3 +117,5 @@ export const privacy = {
     },
   ] satisfies PrivacySection[],
 }
+
+export type Privacy = typeof cs

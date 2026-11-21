@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { cn } from '@/lib/cn'
 
 type ButtonLinkProps = {
@@ -48,6 +51,7 @@ export function ButtonLink({
   withArrow = false,
   className,
 }: ButtonLinkProps) {
+  const { dict } = useI18n()
   const classes = cn(BASE, VARIANTS[variant], className)
   const content = (
     <>
@@ -62,7 +66,7 @@ export function ButtonLink({
       <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
         {content}
         {' '}
-        <span className="sr-only">(otevře se v novém okně)</span>
+        <span className="sr-only">{dict.common.opensInNewWindow}</span>
       </a>
     )
   }

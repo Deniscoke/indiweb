@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { isHoneypotFilled, parseInquiry } from '@/lib/inquiry-schema'
+import { cs } from '@/content/locales/cs'
+import { inquiryLocale, isHoneypotFilled, parseInquiry as parse } from '@/lib/inquiry-schema'
+
+const messages = cs.contact.form.errors
+const parseInquiry = (formData: FormData) => parse(formData, messages)
 
 function form(values: Record<string, string>) {
   const formData = new FormData()
@@ -101,5 +105,32 @@ describe('isHoneypotFilled', () => {
 
   it('is true when a bot filled the hidden field', () => {
     expect(isHoneypotFilled(form({ company_url_2: 'https://spam.example' }))).toBe(true)
+  })
+})
+
+describe('messages', () => {
+  it('come from the dictionary of the visitor’s language', () => {
+    const english = { ...messages, emailInvalid: 'Enter a valid e-mail.' }
+    expect(parse(form({ ...valid, email: 'x' }), english)).toEqual({
+      success: false,
+      fieldErrors: { email: ['Enter a valid e-mail.'] },
+    })
+  })
+})
+
+describe('inquiryLocale', () => {
+  it.each(['cs', 'en', 'de'])('accepts %s', (locale) => {
+    expect(inquiryLocale(form({ locale }))).toBe(locale)
+  })
+
+  it.each(['', 'fr', 'EN', '../en', 'constructor'])('falls back to Czech for "%s"', (locale) => {
+    expect(inquiryLocale(form({ locale }))).toBe('cs')
+  })
+
+  it('falls back to Czech when the field is missing or a file', () => {
+    expect(inquiryLocale(new FormData())).toBe('cs')
+    const formData = new FormData()
+    formData.set('locale', new Blob(['en']))
+    expect(inquiryLocale(formData)).toBe('cs')
   })
 })

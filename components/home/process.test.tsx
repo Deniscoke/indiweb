@@ -1,14 +1,15 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
+import { renderWithI18n } from '@/test/render'
 import { Process } from '@/components/home/process'
-import { processSteps } from '@/content/process'
+import { cs } from '@/content/locales/cs'
 
 it('lists the four steps in order', () => {
-  render(<Process />)
+  renderWithI18n(<Process />)
   const items = within(screen.getByRole('list')).getAllByRole('listitem')
   expect(items).toHaveLength(4)
-  processSteps.forEach((step, index) => {
+  cs.process.steps.forEach((step, index) => {
     expect(within(items[index]).getByRole('heading', { level: 3, name: step.title })).toBeTruthy()
   })
 })

@@ -1,4 +1,4 @@
-import type { Media, NavItem } from './types'
+import type { Media } from './types'
 
 /** The site's public address. indiweb.cz redirects here, so canonical URLs must use www. */
 export const PRODUCTION_URL = 'https://www.indiweb.cz'
@@ -13,46 +13,18 @@ export function resolveSiteUrl(env: Record<string, string | undefined> = process
 
 export const site = {
   name: 'IndiWeb',
-  title: 'IndiWeb — weby na míru, 3D a AI agenti',
-  description:
-    'Denis, Adam a Ondra. Navrhujeme weby, 3D vizualizace a AI agenty, kteří za vás zvednou telefon.',
   email: 'info.indiweb@gmail.com',
   url: resolveSiteUrl(),
-  locale: 'cs_CZ',
 }
 
-export const navigation: NavItem[] = [
-  { href: '/#sluzby', label: 'Služby' },
-  { href: '/#splaty', label: '3D' },
-  { href: '/#aria', label: 'Aria' },
-  { href: '/#projekty', label: 'Projekty' },
-  { href: '/#fab', label: 'Assety' },
-  { href: '/#o-nas', label: 'O nás' },
-  { href: '/#kontakt', label: 'Kontakt' },
-]
+/** Home page sections in the menu, by their id. Ids stay Czech in every language. */
+export const NAV_SECTIONS = ['sluzby', 'splaty', 'aria', 'projekty', 'fab', 'o-nas', 'kontakt'] as const
+export type NavSection = (typeof NAV_SECTIONS)[number]
 
-export const contactHref = '/#kontakt'
-export const PRIVACY_HREF = '/ochrana-osobnich-udaju'
-
-export const hero = {
-  /** Three lines spread across the hero, lit by the pointer. */
-  lines: ['Navrhneme.', 'Postavíme.', 'Rozsvítíme.'],
-  subtitle:
-    'Weby, 3D vizualizace a AI agenti od Denise, Adama a Ondry. Na míru, rychle a s AI v každém kroku.',
-  hint: 'Odpovídáme do 24 hodin, nezávazně.',
-}
+export const CONTACT_ID = 'kontakt'
+export const PROJECTS_ID = 'projekty'
 
 export const media = {
-  laptop: {
-    src: '/media/macbook.webp',
-    width: 1376,
-    height: 768,
-    alt: 'Pootevřený MacBook ve tmě',
-  },
-  phone: {
-    src: '/media/phone.webp',
-    width: 896,
-    height: 1200,
-    alt: 'Chytrý telefon ve tmě',
-  },
+  laptop: { src: '/media/macbook.webp', width: 1376, height: 768 },
+  phone: { src: '/media/phone.webp', width: 896, height: 1200 },
 } satisfies Record<string, Media>

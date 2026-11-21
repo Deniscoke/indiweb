@@ -4,10 +4,11 @@ import { useRef } from 'react'
 import { ScrambleText } from '@/components/aria/scramble-text'
 import { VoiceDemo } from '@/components/aria/voice-demo'
 import { VoiceDots } from '@/components/aria/voice-dots'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { BulletList } from '@/components/ui/bullet-list'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
-import { aria } from '@/content/aria'
+import { localizedPath } from '@/lib/i18n'
 import { fitsInView, gsap, useScene } from '@/lib/motion'
 
 const FLOODED = 'is-flooded'
@@ -17,6 +18,8 @@ const WET = 'circle(75% at 72% 50%)'
 
 /** `voiceDemo`: the live call with Aria is set up (ElevenLabs key and agent), so visitors can try her. */
 export function AriaTeaser({ voiceDemo = false }: { voiceDemo?: boolean }) {
+  const { locale, dict } = useI18n()
+  const { aria } = dict
   const ref = useRef<HTMLElement>(null)
 
   // Scene 3 — Aria's voice floods the screen: a pool of the intro's lilac light
@@ -88,11 +91,11 @@ export function AriaTeaser({ voiceDemo = false }: { voiceDemo?: boolean }) {
               <p className="aria-scene__dim mt-8 max-w-xl text-lg text-fg-dim">{aria.description}</p>
               <BulletList items={aria.capabilities.slice(0, 3)} className="mt-8" />
               <div className="mt-12 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/aria">Více o Arii</ButtonLink>
+                <ButtonLink href={localizedPath(locale, { name: 'aria' })}>{aria.more}</ButtonLink>
                 {/* The call is right here; on phones it sits below the pitch, so this jumps to it. */}
                 {voiceDemo && (
                   <ButtonLink href={`#${TRY_ARIA_ID}`} variant="ghost">
-                    Vyzkoušet Ariu
+                    {aria.try}
                   </ButtonLink>
                 )}
               </div>

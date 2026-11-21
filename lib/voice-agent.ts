@@ -1,26 +1,32 @@
 // The live voice demo in the Aria section: an ElevenLabs agent that speaks for
 // IndiWeb. Its prompt is built from the site's own content, so it knows exactly
 // what the site says; `npm run voice:sync` uploads this configuration.
-import { aria } from '@/content/aria'
-import { processSteps } from '@/content/process'
-import { services } from '@/content/services'
+import { cs } from '@/content/locales/cs'
+import { localizedServices } from '@/content/services'
 import { site } from '@/content/site'
-import { splatShowcase } from '@/content/splat'
-import { team } from '@/content/team'
+import { localizedTeam } from '@/content/team'
 
-export type Voice = { id: string; label: string; description: string }
+// The agent speaks Czech, so it learns from the Czech texts whatever language the page is in.
+const { aria, process: journey, splat } = cs
+const services = localizedServices(cs)
+const team = localizedTeam(cs)
+
+/** `slug` finds the voice's description in the dictionary (voiceDemo.voices). */
+export type Voice = { id: string; slug: string; label: string }
 
 /**
  * Voices a visitor can try: native Czech professional voices from the IndiWeb
  * ElevenLabs account, which sound far more natural in Czech than the English
  * premade ones. Visitors hear Aria in any of them; the first is her default.
  */
-export const VOICES: Voice[] = [
-  { id: 'Nr9bRiFsgPeaoVggMD2V', label: 'Markéta', description: 'Jasný, příjemný ženský hlas' },
-  { id: 'ULC9TU2vv6WOHN6tKxNv', label: 'Katy', description: 'Mladý, přirozený ženský hlas' },
-  { id: 'uYFJyGaibp4N2VwYQshk', label: 'Marek', description: 'Sametový, klidný mužský hlas' },
-  { id: 'pt8Kvp57SW3o4WuGqWZG', label: 'Kuba', description: 'Uvolněný mužský hlas' },
-]
+export const VOICES = [
+  { id: 'Nr9bRiFsgPeaoVggMD2V', slug: 'marketa', label: 'Markéta' },
+  { id: 'ULC9TU2vv6WOHN6tKxNv', slug: 'katy', label: 'Katy' },
+  { id: 'uYFJyGaibp4N2VwYQshk', slug: 'marek', label: 'Marek' },
+  { id: 'pt8Kvp57SW3o4WuGqWZG', slug: 'kuba', label: 'Kuba' },
+] as const satisfies readonly Voice[]
+
+export type VoiceSlug = (typeof VOICES)[number]['slug']
 
 /** One demo call may last this long, so the credits last for many visitors. */
 export const MAX_CALL_SECONDS = 180
@@ -42,7 +48,7 @@ export function voiceAgentPrompt(): string {
   const offer = services
     .map((service) => `${service.title}: ${service.summary}\n${bullets(service.points)}`)
     .join('\n\n')
-  const steps = processSteps.map((step, index) => `${index + 1}. ${step.title} — ${step.text}`).join('\n')
+  const steps = journey.steps.map((step, index) => `${index + 1}. ${step.title} — ${step.text}`).join('\n')
   const people = team.map((member) => `- ${member.name} (${member.role}): ${member.bio}`).join('\n')
 
   return `# Kdo jsi
@@ -65,7 +71,7 @@ ${site.name} je malé studio tří kluků, kteří tvoří weby na míru, 3D a A
 ${offer}
 
 ## 3D a spolupráce se Splatoo
-${bullets(splatShowcase.collaboration)}
+${bullets(splat.collaboration)}
 Na tomto webu je živá 3D prohlídka sálu zámku ve Žďáru nad Sázavou (sekce „3D“), kterou si návštěvník může sám projít.
 
 ## Aria (produkt)

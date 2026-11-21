@@ -2,16 +2,19 @@
 
 import Image from 'next/image'
 import { useRef } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { BulletList } from '@/components/ui/bullet-list'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
-import { services } from '@/content/services'
+import { localizedServices } from '@/content/services'
 import { media } from '@/content/site'
 import { fitsInView, gsap, stepAt, useScene } from '@/lib/motion'
 
 const numeral = (index: number) => String(index + 1).padStart(2, '0')
 
 export function Services() {
+  const { dict } = useI18n()
+  const services = localizedServices(dict)
   const ref = useRef<HTMLElement>(null)
 
   // Scene 2 — an index lit by a travelling spark. On desktop the stage pins: a
@@ -92,8 +95,8 @@ export function Services() {
       <Container>
         <SectionHeading
           id="sluzby-nadpis"
-          title="Web je základ. 3D a AI jsou důvod, proč bude lepší."
-          lead="Navrhujeme a stavíme weby na míru. A když to dává smysl, přidáme 3D, splaty nebo AI agenta, který za vás odvede kus práce."
+          title={dict.services.title}
+          lead={dict.services.lead}
         />
 
         <div data-stage className="services-stage mt-12 sm:mt-20">
@@ -128,7 +131,7 @@ export function Services() {
                   <div className="service-panel__media relative mt-8 aspect-[16/9] overflow-hidden">
                     <Image
                       src={media.laptop.src}
-                      alt={media.laptop.alt}
+                      alt={dict.media.laptopAlt}
                       fill
                       sizes="(min-width: 1024px) 35vw, 100vw"
                       className="object-cover"

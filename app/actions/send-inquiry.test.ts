@@ -10,7 +10,15 @@ vi.mock('resend', () => ({
   ),
 }))
 
+// A stand-in English dictionary, so the test does not depend on the translation.
+const { dictionaries } = vi.hoisted(() => ({ dictionaries: {} as Record<string, Dictionary> }))
+vi.mock('@/content/locales', async () => {
+  const { cs } = await import('@/content/locales/cs')
+  return { getDictionary: (locale: string) => dictionaries[locale] ?? cs }
+})
+
 import { sendInquiry } from '@/app/actions/send-inquiry'
+import { cs, type Dictionary } from '@/content/locales/cs'
 import { INITIAL_INQUIRY_STATE } from '@/lib/inquiry-options'
 
 function inquiryForm(overrides: Record<string, string> = {}) {
@@ -89,5 +97,22 @@ describe('sendInquiry', () => {
     await expect(sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm())).resolves.toEqual({
       status: 'error',
     })
+  })
+
+  it('answers in the language the form was sent from and tells the team which one', async () => {
+    const english = { ...cs.contact.form.errors, emailInvalid: 'Enter a valid e-mail.' }
+    dictionaries.en = { ...cs, contact: { ...cs.contact, form: { ...cs.contact.form, errors: english } } }
+    const state = await sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm({ email: 'spatne', locale: 'en' }))
+    expect(state).toEqual({ status: 'invalid', fieldErrors: { email: ['Enter a valid e-mail.'] } })
+
+    await sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm({ locale: 'en' }))
+    expect(sendMock.mock.calls[0][0].text).toContain('Jazyk návštěvníka: English (en)')
+  })
+
+  it('treats an unknown language as Czech', async () => {
+    const state = await sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm({ email: 'spatne', locale: 'xx' }))
+    expect(state).toEqual({ status: 'invalid', fieldErrors: { email: ['Zadejte platný e-mail.'] } })
+    await sendInquiry(INITIAL_INQUIRY_STATE, inquiryForm({ locale: '__proto__' }))
+    expect(sendMock.mock.calls[0][0].text).toContain('Jazyk návštěvníka: Čeština (cs)')
   })
 })

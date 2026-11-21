@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
+import { renderWithI18n } from '@/test/render'
 import { ProjectDetail } from '@/components/project/project-detail'
-import { projects } from '@/content/projects'
+import { cs } from '@/content/locales/cs'
+import { en } from '@/content/locales/en'
+import { localizedProjects } from '@/content/projects'
 
-const [project, next] = projects
+const [project, next] = localizedProjects(cs)
 
 it('describes the project', () => {
-  render(<ProjectDetail project={project} next={next} />)
+  renderWithI18n(<ProjectDetail locale="cs" project={project} next={next} />)
   expect(screen.getByRole('heading', { level: 1, name: project.title })).toBeTruthy()
   expect(screen.getByText(project.client)).toBeTruthy()
   expect(screen.getByText('Slovensko')).toBeTruthy()
@@ -16,7 +19,7 @@ it('describes the project', () => {
 })
 
 it('links to the live site, the inquiry form and the next project', () => {
-  render(<ProjectDetail project={project} next={next} />)
+  renderWithI18n(<ProjectDetail locale="cs" project={project} next={next} />)
   const live = screen.getByRole('link', { name: /Otevřít web/ })
   expect(live.getAttribute('href')).toBe(project.liveUrl)
   expect(live.getAttribute('target')).toBe('_blank')
@@ -29,6 +32,15 @@ it('links to the live site, the inquiry form and the next project', () => {
 })
 
 it('omits the next-project link when there is none', () => {
-  render(<ProjectDetail project={project} />)
+  renderWithI18n(<ProjectDetail locale="cs" project={project} />)
   expect(screen.queryByRole('navigation', { name: 'Další projekt' })).toBeNull()
+})
+
+it('keeps German visitors on German addresses', () => {
+  const [first, second] = localizedProjects(en)
+  renderWithI18n(<ProjectDetail locale="de" project={first} next={second} />, 'de')
+  const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'))
+  expect(hrefs).toContain('/de#projekty')
+  expect(hrefs).toContain('/de#kontakt')
+  expect(hrefs).toContain(`/de/projekte/${second.slug}`)
 })

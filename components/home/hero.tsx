@@ -1,9 +1,10 @@
 'use client'
 
 import { Fragment, useRef } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Container } from '@/components/ui/container'
-import { hero } from '@/content/site'
+import { CONTACT_ID, PROJECTS_ID } from '@/content/site'
 import { cn } from '@/lib/cn'
 import { gsap, useScene } from '@/lib/motion'
 
@@ -11,6 +12,7 @@ import { gsap, useScene } from '@/lib/motion'
 const LINE_PLACEMENT = ['justify-self-start', 'justify-self-center', 'justify-self-end']
 
 export function Hero() {
+  const { hero } = useI18n().dict
   const ref = useRef<HTMLElement>(null)
 
   // Scene 1 — flying through the aperture: the lines part as the camera passes
@@ -84,9 +86,9 @@ export function Hero() {
             <p className="mt-4 font-mono text-xs text-fg-faint">{hero.hint}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="#kontakt">Napište nám</ButtonLink>
-            <ButtonLink href="#projekty" variant="ghost">
-              Ukázky práce
+            <ButtonLink href={`#${CONTACT_ID}`}>{hero.contact}</ButtonLink>
+            <ButtonLink href={`#${PROJECTS_ID}`} variant="ghost">
+              {hero.work}
             </ButtonLink>
           </div>
         </div>

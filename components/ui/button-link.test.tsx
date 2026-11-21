@@ -1,17 +1,18 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
+import { renderWithI18n } from '@/test/render'
 import { ButtonLink } from '@/components/ui/button-link'
 
 it('renders an internal link in the same tab', () => {
-  render(<ButtonLink href="/aria">Více o Arii</ButtonLink>)
+  renderWithI18n(<ButtonLink href="/aria">Více o Arii</ButtonLink>)
   const link = screen.getByRole('link', { name: 'Více o Arii' })
   expect(link.getAttribute('href')).toBe('/aria')
   expect(link.getAttribute('target')).toBeNull()
 })
 
 it('opens an external link in a new tab and says so', () => {
-  render(
+  renderWithI18n(
     <ButtonLink href="https://aria-eta-five.vercel.app" external withArrow>
       Vyzkoušet Ariu
     </ButtonLink>,

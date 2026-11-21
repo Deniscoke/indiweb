@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { Container } from '@/components/ui/container'
-import { contactHref, navigation, site } from '@/content/site'
+import { CONTACT_ID, NAV_SECTIONS, site } from '@/content/site'
 import { cn } from '@/lib/cn'
+import { localizedPath } from '@/lib/i18n'
+import { LanguageSwitcher } from './language-switcher'
 
 // A 3×3 dot grid; when the menu opens only the diagonals stay lit, drawing an X.
 const DOTS = [0, 1, 2].flatMap((row) => [0, 1, 2].map((col) => ({ row, col })))
@@ -31,6 +34,9 @@ function MenuIcon({ open }: { open: boolean }) {
 }
 
 export function Header() {
+  const { locale, dict } = useI18n()
+  const t = dict.header
+  const home = localizedPath(locale, { name: 'home' })
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -71,7 +77,7 @@ export function Header() {
       )}
     >
       <Container className="relative z-10 flex h-18 items-center justify-between gap-6">
-        <Link href="/" onClick={close} className="-my-2 flex items-center gap-3 py-2 text-lg font-semibold tracking-tight">
+        <Link href={home} onClick={close} className="-my-2 flex items-center gap-3 py-2 text-lg font-semibold tracking-tight">
           <span
             aria-hidden="true"
             className="size-2 rounded-full bg-white shadow-[0_0_12px_2px_rgb(255_255_255/0.75),0_0_28px_6px_rgb(217_184_255/0.35)]"
@@ -80,12 +86,13 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-6">
+          <LanguageSwitcher className="hidden sm:block" onNavigate={close} />
           <Link
-            href={contactHref}
+            href={`${home}#${CONTACT_ID}`}
             onClick={close}
             className="hidden text-sm text-fg-dim underline-offset-4 transition-colors hover:text-fg hover:underline sm:inline"
           >
-            Napište nám
+            {t.contact}
           </Link>
           <button
             ref={buttonRef}
@@ -93,7 +100,7 @@ export function Header() {
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-controls="menu"
-            aria-label={open ? 'Zavřít menu' : 'Otevřít menu'}
+            aria-label={open ? t.closeMenu : t.openMenu}
             className="flex size-11 items-center justify-center rounded-full border border-line transition-colors hover:border-line-strong"
           >
             <MenuIcon open={open} />
@@ -102,27 +109,30 @@ export function Header() {
       </Container>
 
       {open && (
-        <div id="menu" role="dialog" aria-modal="true" aria-label="Menu" className="fixed inset-0 bg-bg">
+        <div id="menu" role="dialog" aria-modal="true" aria-label={t.menu} className="fixed inset-0 bg-bg">
           <Container className="flex h-full flex-col justify-between pt-32 pb-10">
-            <nav aria-label="Hlavní navigace">
+            <nav aria-label={t.mainNav}>
               <ul className="space-y-1">
-                {navigation.map((item, index) => (
-                  <li key={item.href}>
+                {NAV_SECTIONS.map((section, index) => (
+                  <li key={section}>
                     <Link
                       ref={index === 0 ? firstLinkRef : undefined}
-                      href={item.href}
+                      href={`${home}#${section}`}
                       onClick={close}
                       className="lit inline-block text-5xl leading-[1.1] font-semibold tracking-tight sm:text-7xl"
                     >
-                      {item.label}
+                      {dict.nav[section]}
                     </Link>
                   </li>
                 ))}
               </ul>
             </nav>
-            <a href={`mailto:${site.email}`} className="inline-block py-3 font-mono text-sm text-fg-dim hover:text-fg">
-              {site.email}
-            </a>
+            <div className="flex flex-wrap items-center justify-between gap-x-6">
+              <a href={`mailto:${site.email}`} className="inline-block py-3 font-mono text-sm text-fg-dim hover:text-fg">
+                {site.email}
+              </a>
+              <LanguageSwitcher onNavigate={close} />
+            </div>
           </Container>
         </div>
       )}

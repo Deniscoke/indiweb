@@ -1,21 +1,25 @@
 import Link from 'next/link'
 import { Container } from '@/components/ui/container'
-import { navigation, PRIVACY_HREF, site } from '@/content/site'
+import { getDictionary } from '@/content/locales'
+import { NAV_SECTIONS, site } from '@/content/site'
+import { localizedPath, type Locale } from '@/lib/i18n'
 
-export function Footer() {
+export function Footer({ locale }: { locale: Locale }) {
+  const dict = getDictionary(locale)
+  const home = localizedPath(locale, { name: 'home' })
   const year = new Date().getFullYear()
   return (
     <footer className="relative z-10 border-t border-line">
       <Container className="flex flex-col gap-6 py-10 text-sm text-fg-dim sm:flex-row sm:items-center sm:justify-between">
         <p className="font-mono text-xs">
-          © {year} {site.name}. Tvoříme s péčí.
+          © {year} {site.name}. {dict.footer.tagline}
         </p>
-        <nav aria-label="Patička">
+        <nav aria-label={dict.footer.nav}>
           <ul className="flex flex-wrap gap-x-6">
-            {navigation.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="inline-block py-3 hover:text-fg">
-                  {item.label}
+            {NAV_SECTIONS.map((section) => (
+              <li key={section}>
+                <Link href={`${home}#${section}`} className="inline-block py-3 hover:text-fg">
+                  {dict.nav[section]}
                 </Link>
               </li>
             ))}
@@ -25,8 +29,8 @@ export function Footer() {
               </a>
             </li>
             <li>
-              <Link href={PRIVACY_HREF} className="inline-block py-3 hover:text-fg">
-                Ochrana osobních údajů
+              <Link href={localizedPath(locale, { name: 'privacy' })} className="inline-block py-3 hover:text-fg">
+                {dict.footer.privacy}
               </Link>
             </li>
           </ul>

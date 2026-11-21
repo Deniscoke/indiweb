@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
+import { getDictionary } from '@/content/locales'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderWithI18n } from '@/test/render'
 
 type SessionOptions = {
   onStatusChange?: (event: { status: string }) => void
@@ -23,6 +25,8 @@ vi.mock('@elevenlabs/client', () => {
 vi.mock('@/app/actions/start-voice-call', () => ({ startVoiceCall }))
 
 import { VoiceDemo } from '@/components/aria/voice-demo'
+import { I18nProvider } from '@/components/i18n/i18n-provider'
+import { cs } from '@/content/locales/cs'
 import { VOICES } from '@/lib/voice-agent'
 
 const callButton = () => screen.getByRole('button', { name: /Promluvit s Ariou/ })
@@ -46,7 +50,7 @@ async function startCall(): Promise<SessionOptions> {
 
 describe('VoiceDemo', () => {
   it('offers a call with Aria and a choice of voices, the default first', () => {
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     expect(callButton()).toBeTruthy()
     const voices = screen.getAllByRole('radio')
     expect(voices.map((voice) => voice.getAttribute('value'))).toEqual(VOICES.map((voice) => voice.id))
@@ -54,14 +58,14 @@ describe('VoiceDemo', () => {
   })
 
   it('downloads the voice SDK only once a visitor starts a call', async () => {
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     expect(sdkLoaded).not.toHaveBeenCalled()
     await startCall()
     expect(sdkLoaded).toHaveBeenCalled()
   })
 
   it('starts a call with a token from our server and the chosen voice', async () => {
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     fireEvent.click(screen.getByRole('radio', { name: /Katy/ }))
     await startCall()
     expect(startSession).toHaveBeenCalledWith(
@@ -75,7 +79,7 @@ describe('VoiceDemo', () => {
 
   it('explains, and does not start, when the demo is unavailable', async () => {
     startVoiceCall.mockResolvedValue({ status: 'unavailable' })
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     fireEvent.click(callButton())
     expect(await screen.findByText(/teď není k dispozici/)).toBeTruthy()
     expect(startSession).not.toHaveBeenCalled()
@@ -83,14 +87,14 @@ describe('VoiceDemo', () => {
 
   it('asks to slow down when a visitor starts too many calls', async () => {
     startVoiceCall.mockResolvedValue({ status: 'busy' })
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     fireEvent.click(callButton())
     expect(await screen.findByText(/za pár minut/)).toBeTruthy()
   })
 
   it('needs a microphone', async () => {
     Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     fireEvent.click(callButton())
     expect(await screen.findByText(/Povolte ho prosím v prohlížeči/)).toBeTruthy()
     expect(startVoiceCall).not.toHaveBeenCalled()
@@ -98,14 +102,14 @@ describe('VoiceDemo', () => {
 
   it('explains when the call cannot connect (e.g. the microphone was refused)', async () => {
     startSession.mockRejectedValue(new Error('Permission denied'))
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     startVoiceCall.mockResolvedValue({ status: 'ready', token: 'conv_1' })
     fireEvent.click(callButton())
     expect(await screen.findByText(/Povolte ho prosím v prohlížeči/)).toBeTruthy()
   })
 
   it('during a call, shows who is talking and her words, locks the voice and lets you hang up', async () => {
-    render(<VoiceDemo />)
+    renderWithI18n(<VoiceDemo />)
     const events = await startCall()
     act(() => {
       events.onStatusChange?.({ status: 'connected' })
@@ -124,6 +128,27 @@ describe('VoiceDemo', () => {
 })
 
 it('links to how the call is processed', () => {
-  render(<VoiceDemo />)
+  renderWithI18n(<VoiceDemo />)
   expect(screen.getByRole('link', { name: 'Jak zpracováváme hlas' }).getAttribute('href')).toBe('/ochrana-osobnich-udaju')
+})
+
+it('shows no language note in Czech, and shows one where the dictionary has it', () => {
+  const { container, unmount } = renderWithI18n(<VoiceDemo />)
+  const paragraphs = container.querySelectorAll('.voice-demo > p').length
+  unmount()
+  const dict = { ...cs, voiceDemo: { ...cs.voiceDemo, languageNote: 'The demo speaks Czech.' } }
+  render(
+    <I18nProvider locale="en" dict={dict}>
+      <VoiceDemo />
+    </I18nProvider>,
+  )
+  expect(screen.getByText('The demo speaks Czech.')).toBeTruthy()
+  expect(document.querySelectorAll('.voice-demo > p').length).toBe(paragraphs + 1)
+})
+
+it('links English visitors to the English privacy page', () => {
+  renderWithI18n(<VoiceDemo />, 'en')
+  expect(screen.getByRole('link', { name: getDictionary('en').voiceDemo.privacyLink }).getAttribute('href')).toBe(
+    '/en/privacy',
+  )
 })

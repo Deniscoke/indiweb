@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { renderWithI18n } from '@/test/render'
 import { getInitials, TeamCard } from '@/components/home/team-card'
 import type { TeamMember } from '@/content/types'
 
@@ -14,7 +15,7 @@ const denis: TeamMember = {
 
 describe('TeamCard', () => {
   it('links to the personal website in a new tab', () => {
-    render(<TeamCard member={denis} />)
+    renderWithI18n(<TeamCard member={denis} />)
     const link = screen.getByRole('link', { name: /Denis Mitrović/ })
     expect(link.getAttribute('href')).toBe('https://mojweb2.vercel.app')
     expect(link.getAttribute('target')).toBe('_blank')
@@ -22,7 +23,7 @@ describe('TeamCard', () => {
   })
 
   it('is a plain card without a website', () => {
-    render(<TeamCard member={{ ...denis, website: undefined, name: 'Adam', slug: 'adam' }} />)
+    renderWithI18n(<TeamCard member={{ ...denis, website: undefined, name: 'Adam', slug: 'adam' }} />)
     expect(screen.queryByRole('link')).toBeNull()
     expect(screen.getByRole('heading', { level: 3, name: 'Adam' })).toBeTruthy()
   })

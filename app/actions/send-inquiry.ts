@@ -1,10 +1,11 @@
 'use server'
 
 import { Resend } from 'resend'
+import { getDictionary } from '@/content/locales'
 import { site } from '@/content/site'
 import { buildInquiryEmail } from '@/lib/inquiry-email'
 import type { InquiryState } from '@/lib/inquiry-options'
-import { isHoneypotFilled, parseInquiry } from '@/lib/inquiry-schema'
+import { inquiryLocale, isHoneypotFilled, parseInquiry } from '@/lib/inquiry-schema'
 
 export async function sendInquiry(
   _previous: InquiryState,
@@ -13,7 +14,10 @@ export async function sendInquiry(
   // Bots fill the hidden field; report success so they do not retry.
   if (isHoneypotFilled(formData)) return { status: 'success' }
 
-  const parsed = parseInquiry(formData)
+  // The form says which language it was sent from; it only picks the error
+  // messages and a line in our e-mail, and anything unknown counts as Czech.
+  const locale = inquiryLocale(formData)
+  const parsed = parseInquiry(formData, getDictionary(locale).contact.form.errors)
   if (!parsed.success) return { status: 'invalid', fieldErrors: parsed.fieldErrors }
 
   // Read the key per request: the Resend constructor throws when it is missing.
@@ -26,7 +30,7 @@ export async function sendInquiry(
   try {
     // Resend returns API failures as { error } instead of throwing.
     const { error } = await new Resend(apiKey).emails.send(
-      buildInquiryEmail(parsed.data, site.email),
+      buildInquiryEmail(parsed.data, site.email, locale),
     )
     if (error) {
       console.error('[sendInquiry] Resend rejected the e-mail', error)

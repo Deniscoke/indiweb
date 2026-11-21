@@ -1,13 +1,14 @@
 'use client'
 
 import { useRef } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
 import { StepList } from '@/components/ui/step-list'
-import { processSteps } from '@/content/process'
-import { gsap, useScene } from '@/lib/motion'
+import { fitsInView, gsap, useScene } from '@/lib/motion'
 
 export function Process() {
+  const t = useI18n().dict.process
   const ref = useRef<HTMLElement>(null)
 
   // Scene 5 — the road from first message to launch: on desktop the section pins
@@ -17,7 +18,7 @@ export function Process() {
   useScene(ref, ({ desktop }) => {
     const steps = gsap.utils.toArray<HTMLElement>('[data-track] li')
 
-    if (!desktop) {
+    const riseIn = () => {
       for (const step of steps) {
         gsap.from(step, {
           y: 40,
@@ -27,13 +28,18 @@ export function Process() {
           scrollTrigger: { trigger: step, start: 'top 88%' },
         })
       }
-      return
     }
-
-    gsap.set('[data-track]', { attr: { 'data-staged': '' } })
     const list = ref.current?.querySelector<HTMLElement>('[data-track] ol')
     const track = ref.current?.querySelector<HTMLElement>('[data-track]')
-    if (!list || !track) return
+    if (!desktop || !list || !track) return riseIn()
+
+    track.setAttribute('data-staged', '')
+    // Heading and road are pinned together and must fit below the header; a
+    // longer heading (German, on a small laptop) leaves the steps in a column.
+    if (!fitsInView(track.parentElement, 88)) {
+      track.removeAttribute('data-staged')
+      return riseIn()
+    }
     const distance = () => Math.max(0, list.scrollWidth - track.clientWidth)
 
     const timeline = gsap.timeline({
@@ -69,15 +75,17 @@ export function Process() {
         },
       )
     }
+    // Reverting the scene does not remove an attribute it set.
+    return () => track.removeAttribute('data-staged')
   })
 
   return (
     <section ref={ref} id="postup" aria-labelledby="postup-nadpis" className="overflow-x-clip py-20 sm:py-40">
       <Container>
-        <SectionHeading id="postup-nadpis" title="Od první zprávy po spuštění ve čtyřech krocích." />
+        <SectionHeading id="postup-nadpis" title={t.title} />
         <div data-track className="process-track relative mt-12 sm:mt-20">
           <span aria-hidden="true" data-process-line className="process-line" />
-          <StepList steps={processSteps} />
+          <StepList steps={t.steps} />
         </div>
       </Container>
     </section>

@@ -1,60 +1,39 @@
+// Shapes of the site's content. Language-neutral data lives in content/*.ts,
+// every text in content/locales; the types below are the two joined together.
+
 export const SERVICE_IDS = ['web', '3d', 'ai', 'konzultace'] as const
 export type ServiceId = (typeof SERVICE_IDS)[number]
 
-export type Service = {
-  id: ServiceId
-  title: string
-  summary: string
-  points: string[]
-  featured?: boolean
-}
+export type ServiceText = { title: string; summary: string; points: string[] }
+export type Service = ServiceText & { id: ServiceId; featured?: boolean }
 
 export type Market = 'SK' | 'CZ'
 
-export type Project = {
-  slug: string
-  title: string
+export type ProjectData = { slug: string; title: string; market: Market; liveUrl: string; image: string }
+export type ProjectText = {
   client: string
-  market: Market
   tags: string[]
   summary: string
   description: string
   highlights: string[]
-  liveUrl: string
-  image: string
 }
+export type Project = ProjectData & ProjectText
 
-export type TeamMember = {
-  slug: string
-  name: string
-  role: string
-  bio: string
-  website?: string
-  photo?: string
-}
+export type TeamMemberData = { slug: string; name: string; website?: string; photo?: string }
+export type TeamMemberText = { role: string; bio: string }
+export type TeamMember = TeamMemberData & TeamMemberText
 
 export type Step = { title: string; text: string }
 
-export type Product = {
-  name: string
-  headline: string
-  tagline: string
-  description: string
-  capabilities: string[]
-  audience: string[]
-  rollout: Step[]
-}
+export type Media = { src: string; width: number; height: number }
 
-export type NavItem = { href: string; label: string }
-
-export type Media = { src: string; width: number; height: number; alt: string }
-
-export type FabListing = {
+export type FabListingData = {
   slug: string
+  /** The product's name on Fab: the same in every language. */
   title: string
   url: string
-  /** What it is, in a few words: shown on the card. */
-  kind: string
   /** Shown as a card with its preview at /fab/<slug>.webp. */
   featured?: boolean
 }
+/** `kind`: what it is, in a few words, shown on the card. */
+export type FabListing = FabListingData & { kind: string }

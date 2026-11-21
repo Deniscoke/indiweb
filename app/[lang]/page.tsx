@@ -9,17 +9,23 @@ import { Services } from '@/components/home/services'
 import { SplatShowcase } from '@/components/home/splat-showcase'
 import { Team } from '@/components/home/team'
 import { JsonLd } from '@/components/seo/json-ld'
-import { site } from '@/content/site'
-import { organizationJsonLd, pageMetadata } from '@/lib/seo'
+import { getDictionary } from '@/content/locales'
+import { pageLocale } from '@/lib/page-locale'
+import { homeJsonLd, pageMetadata } from '@/lib/seo'
 import { voiceDemoEnabled } from '@/lib/voice-demo-enabled'
 
 // The layout's title template applies only to child segments, so this title stays as written.
-export const metadata: Metadata = pageMetadata({ title: site.title, description: site.description, path: '/' })
+export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promise<Metadata> {
+  const locale = await pageLocale(params)
+  const { title, description } = getDictionary(locale).site
+  return pageMetadata({ locale, title, description, route: { name: 'home' } })
+}
 
-export default function HomePage() {
+export default async function HomePage({ params }: PageProps<'/[lang]'>) {
+  const locale = await pageLocale(params)
   return (
     <>
-      <JsonLd data={organizationJsonLd()} />
+      <JsonLd data={homeJsonLd(locale, getDictionary(locale))} />
       <Hero />
       <Services />
       <SplatShowcase />
@@ -28,7 +34,7 @@ export default function HomePage() {
       <FabStore />
       <Process />
       <Team />
-      <ContactSection />
+      <ContactSection locale={locale} />
     </>
   )
 }

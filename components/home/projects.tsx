@@ -1,14 +1,18 @@
 'use client'
 
 import { useRef } from 'react'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import { Container } from '@/components/ui/container'
 import { SectionHeading } from '@/components/ui/section-heading'
-import { projects } from '@/content/projects'
+import { localizedProjects } from '@/content/projects'
+import { PROJECTS_ID } from '@/content/site'
 import { cn } from '@/lib/cn'
 import { fitsInView, gsap, useScene } from '@/lib/motion'
 import { ProjectCard } from './project-card'
 
 export function Projects() {
+  const { dict } = useI18n()
+  const projects = localizedProjects(dict)
   const ref = useRef<HTMLElement>(null)
 
   // Scene 4 — the work flies in out of the dark: on desktop the gallery pins and
@@ -70,12 +74,12 @@ export function Projects() {
   })
 
   return (
-    <section ref={ref} id="projekty" aria-labelledby="projekty-nadpis" className="py-20 sm:py-40">
+    <section ref={ref} id={PROJECTS_ID} aria-labelledby="projekty-nadpis" className="py-20 sm:py-40">
       <Container>
         <SectionHeading
           id="projekty-nadpis"
-          title="Každý klient dostane web, který sedí jemu. Ne šabloně."
-          lead="Výtahová firma potřebuje něco jiného než terapeutka. Podívejte se, jak to vypadá v praxi."
+          title={dict.projects.title}
+          lead={dict.projects.lead}
         />
         <ul data-gallery className="project-gallery mt-12 grid gap-16 sm:mt-20 md:grid-cols-2 md:gap-12">
           {projects.map((project, index) => (

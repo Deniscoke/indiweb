@@ -1,10 +1,20 @@
 import { ImageResponse } from 'next/og'
+import { getDictionary } from '@/content/locales'
+import { site } from '@/content/site'
+import { DEFAULT_LOCALE, isLocale, LOCALES } from '@/lib/i18n'
 
-export const alt = 'IndiWeb — weby, 3D a AI agenti'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function OpengraphImage() {
+// Drawn once per language at build time.
+export function generateStaticParams() {
+  return LOCALES.map((lang) => ({ lang }))
+}
+
+// The share picture, with its words in the page's language.
+export default async function OpengraphImage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const { shareImage } = getDictionary(isLocale(lang) ? lang : DEFAULT_LOCALE).site
   return new ImageResponse(
     (
       <div
@@ -36,12 +46,12 @@ export default function OpengraphImage() {
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px', fontSize: 40, fontWeight: 600 }}>
           <div style={{ width: 18, height: 18, borderRadius: 9999, background: '#ffffff' }} />
-          IndiWeb
+          {site.name}
         </div>
         <div style={{ marginTop: 40, fontSize: 88, fontWeight: 700, lineHeight: 1.05, letterSpacing: '-0.03em' }}>
-          Weby, 3D a AI agenti
+          {shareImage.headline}
         </div>
-        <div style={{ marginTop: 28, fontSize: 34, color: '#a19ea9' }}>Weby na míru · 3D a Gaussian splaty · AI hlasoví agenti</div>
+        <div style={{ marginTop: 28, fontSize: 34, color: '#a19ea9' }}>{shareImage.tagline}</div>
       </div>
     ),
     size,

@@ -1,4 +1,7 @@
+'use client'
+
 import Image from 'next/image'
+import { useI18n } from '@/components/i18n/i18n-provider'
 import type { TeamMember } from '@/content/types'
 import { cn } from '@/lib/cn'
 
@@ -16,6 +19,7 @@ const ROW =
 
 /** One team member as a row of the team list; the whole row links to a personal site if there is one. */
 export function TeamCard({ member }: { member: TeamMember }) {
+  const { dict } = useI18n()
   const body = (
     <>
       {member.photo ? (
@@ -33,8 +37,8 @@ export function TeamCard({ member }: { member: TeamMember }) {
       <p className="col-start-2 text-fg-dim md:col-start-auto">{member.bio}</p>
       {member.website ? (
         <span className="col-start-2 text-sm text-fg-dim md:col-start-auto">
-          Osobní web <span aria-hidden="true">↗</span>{' '}
-          <span className="sr-only">(otevře se v novém okně)</span>
+          {dict.team.personalSite} <span aria-hidden="true">↗</span>{' '}
+          <span className="sr-only">{dict.common.opensInNewWindow}</span>
         </span>
       ) : (
         <span className="hidden md:block" />

@@ -12,11 +12,12 @@ import {
   type ReactNode,
 } from 'react'
 import { sendInquiry } from '@/app/actions/send-inquiry'
-import { PRIVACY_HREF, site } from '@/content/site'
+import { useI18n } from '@/components/i18n/i18n-provider'
+import { site } from '@/content/site'
 import { cn } from '@/lib/cn'
+import { localizedPath } from '@/lib/i18n'
 import {
   INITIAL_INQUIRY_STATE,
-  INQUIRY_SERVICE_LABELS,
   INQUIRY_SERVICES,
   parseServiceParam,
   type InquiryField,
@@ -39,11 +40,12 @@ type FieldProps = {
 }
 
 function Field({ id, label, optional, error, children }: FieldProps) {
+  const { dict } = useI18n()
   return (
     <div className="grid gap-2">
       <label htmlFor={id} className="font-mono text-xs text-fg-dim">
         {label}
-        {optional && <span className="text-fg-faint"> (nepovinné)</span>}
+        {optional && <span className="text-fg-faint"> {dict.contact.form.optional}</span>}
       </label>
       {children}
       {error && (
@@ -61,6 +63,8 @@ export function InquiryFormWithParams() {
 }
 
 export function InquiryForm({ presetService }: { presetService?: InquiryService }) {
+  const { locale, dict } = useI18n()
+  const t = dict.contact.form
   const [state, formAction, pending] = useActionState(sendInquiry, INITIAL_INQUIRY_STATE)
   const [chosenService, setChosenService] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -129,8 +133,8 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
         className="rounded-2xl border border-success/30 bg-success/10 p-6 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent/40"
       >
 
-        <p className="font-display text-xl font-semibold">Díky, zpráva dorazila.</p>
-        <p className="mt-2 text-fg-dim">Ozveme se vám do 24 hodin na e-mail, který jste uvedli.</p>
+        <p className="font-display text-xl font-semibold">{t.successTitle}</p>
+        <p className="mt-2 text-fg-dim">{t.successText}</p>
       </div>
     )
   }
@@ -139,11 +143,13 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
     <form
       action={formAction}
       onSubmit={handleSubmit}
-      aria-label="Poptávkový formulář"
+      aria-label={t.label}
       className="relative grid gap-8"
     >
+      {/* Tells the server which language to answer in; it accepts only a known one. */}
+      <input type="hidden" name="locale" value={locale} />
       <div className="grid gap-8 sm:grid-cols-2">
-        <Field id="name" label="Jméno" error={errorOf('name')}>
+        <Field id="name" label={t.name} error={errorOf('name')}>
           <input
             ref={nameRef}
             id="name"
@@ -156,7 +162,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
             {...controlProps('name')}
           />
         </Field>
-        <Field id="email" label="E-mail" error={errorOf('email')}>
+        <Field id="email" label={t.email} error={errorOf('email')}>
           <input
             ref={emailRef}
             id="email"
@@ -170,7 +176,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
         </Field>
       </div>
 
-      <Field id="service" label="O co máte zájem" optional error={errorOf('service')}>
+      <Field id="service" label={t.service} optional error={errorOf('service')}>
         <select
           ref={serviceRef}
           id="service"
@@ -179,16 +185,16 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
           onChange={(event) => setChosenService(event.target.value)}
           {...controlProps('service')}
         >
-          <option value="">Vyberte službu</option>
+          <option value="">{t.servicePlaceholder}</option>
           {INQUIRY_SERVICES.map((id) => (
             <option key={id} value={id}>
-              {INQUIRY_SERVICE_LABELS[id]}
+              {t.services[id]}
             </option>
           ))}
         </select>
       </Field>
 
-      <Field id="message" label="Váš projekt" error={errorOf('message')}>
+      <Field id="message" label={t.message} error={errorOf('message')}>
         <textarea
           ref={messageRef}
           id="message"
@@ -202,7 +208,7 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
       </Field>
 
       <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
-        <label htmlFor="company_url_2">Web (nevyplňujte)</label>
+        <label htmlFor="company_url_2">{t.honeypot}</label>
         <input
           id="company_url_2"
           name="company_url_2"
@@ -218,34 +224,34 @@ export function InquiryForm({ presetService }: { presetService?: InquiryService 
           disabled={pending}
           className="inline-flex items-center gap-2 rounded-full bg-fg px-7 py-3.5 text-sm font-medium text-bg transition-[background-color,box-shadow] hover:bg-white hover:shadow-[0_0_36px_4px_rgb(217_184_255/0.4)] disabled:cursor-wait disabled:opacity-60"
         >
-          {pending ? 'Odesílám…' : 'Odeslat poptávku'}
+          {pending ? t.sending : t.submit}
         </button>
         <p className="mt-4 max-w-sm text-xs text-fg-faint">
-          Vaše údaje použijeme jen k odpovědi na poptávku. Více v dokumentu{' '}
-          <Link href={PRIVACY_HREF} className="underline underline-offset-4 hover:text-fg">
-            Zásady ochrany osobních údajů
+          {t.consentBefore}{' '}
+          <Link href={localizedPath(locale, { name: 'privacy' })} className="underline underline-offset-4 hover:text-fg">
+            {t.consentLink}
           </Link>
-          .
+          {t.consentAfter}
         </p>
       </div>
 
       <div aria-live="polite">
         {state.status === 'error' && (
           <div role="alert" className="rounded-2xl border border-danger/30 bg-danger/10 p-5 text-sm">
-            <p className="font-medium text-fg">Odeslání se nepovedlo.</p>
+            <p className="font-medium text-fg">{t.errorTitle}</p>
             <p className="mt-1 text-fg-dim">
-              Zkuste to prosím znovu, nebo nám napište přímo na{' '}
+              {t.errorBefore}{' '}
               <a href={`mailto:${site.email}`} className="text-fg underline underline-offset-4">
                 {site.email}
               </a>
-              .
+              {t.errorAfter}
             </p>
             <button
               type="button"
               onClick={copyMessage}
               className="mt-3 rounded-full border border-line-strong px-4 py-2 text-fg transition-colors hover:bg-surface"
             >
-              {copied ? 'Zpráva zkopírována' : 'Zkopírovat zprávu'}
+              {copied ? t.copied : t.copy}
             </button>
           </div>
         )}
